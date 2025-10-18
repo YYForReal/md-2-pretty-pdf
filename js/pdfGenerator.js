@@ -458,7 +458,7 @@ class PDFGenerator {
         // alert('卡住')
         // 执行打印
         setTimeout(()=>{
-            // window.print();
+            window.print();
         },20)
         // 如果没有检测到打印状态变化，5秒后自动恢复
         setTimeout(() => {
@@ -647,7 +647,6 @@ class PDFGenerator {
                     }
                     * {
                         color: black !important;
-                        background: white !important;
                     }
                     a {
                         text-decoration: none;
