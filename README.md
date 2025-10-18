@@ -4,6 +4,10 @@
 
 **仓库地址**: [https://github.com/YYForReal/md-2-pretty-pdf](https://github.com/YYForReal/md-2-pretty-pdf)
 
+## 效果
+
+![效果图](https://github.com/YYForReal/md-2-pretty-pdf/blob/main/assets/preview.png?raw=true)
+
 ## ✨ 主要功能
 
 ### 🎨 样式自定义
