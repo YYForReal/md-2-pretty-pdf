@@ -6,7 +6,14 @@
 
 ## 效果
 
-![效果图](https://github.com/YYForReal/md-2-pretty-pdf/blob/main/assets/preview.png?raw=true)
+|界面预览1|界面预览2|
+|---|---|
+|![界面预览1](https://github.com/YYForReal/md-2-pretty-pdf/blob/main/assets/preview.png?raw=true)|![效果图2](https://github.com/YYForReal/md-2-pretty-pdf/blob/main/assets/preview2.png?raw=true)|
+
+实际导出PDF细节效果如下（具体内容可看example）：
+
+![效果图3](https://github.com/YYForReal/md-2-pretty-pdf/blob/main/assets/result.png?raw=true)
+
 
 ## ✨ 主要功能
 

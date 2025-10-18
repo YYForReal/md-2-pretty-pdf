@@ -100,6 +100,85 @@
                         <span id="fontSizeValue">14px</span>
                     </div>
 
+                    <!-- 背景设置 -->
+                    <div class="control-group">
+                        <label>🖼️ 背景设置</label>
+                        <div class="background-controls">
+                            <!-- 背景类型选择 -->
+                            <div class="background-type-selector">
+                                <label>
+                                    <input type="radio" name="backgroundType" value="solid" checked>
+                                    纯色背景
+                                </label>
+                                <label>
+                                    <input type="radio" name="backgroundType" value="image">
+                                    图片背景
+                                </label>
+                            </div>
+
+                            <!-- 纯色背景设置 -->
+                            <div id="solidBackgroundControls" class="background-subcontrols">
+                                <div class="color-input-group">
+                                    <label>背景颜色</label>
+                                    <input type="color" id="bgColorPicker" value="#ffffff">
+                                    <input type="text" id="bgColorText" value="#ffffff" class="color-text">
+                                </div>
+                            </div>
+
+                            <!-- 图片背景设置 -->
+                            <div id="imageBackgroundControls" class="background-subcontrols" style="display: none;">
+                                <div class="file-input-group">
+                                    <label>背景图片</label>
+                                    <input type="file" id="bgImageInput" accept="image/*" class="file-input">
+                                    <button id="bgImageClearBtn" class="btn btn-small btn-secondary">清除图片</button>
+                                </div>
+
+                                <div class="image-preview" id="bgImagePreview" style="display: none;">
+                                    <img id="bgImagePreviewImg" src="" alt="背景图片预览">
+                                </div>
+
+                                <div class="background-options">
+                                    <div class="option-group">
+                                        <label>背景尺寸</label>
+                                        <select id="bgSizeSelect">
+                                            <option value="cover">覆盖 (Cover)</option>
+                                            <option value="contain">适应 (Contain)</option>
+                                            <option value="100% 100%">拉伸 (Stretch)</option>
+                                            <option value="auto">原始 (Auto)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="option-group">
+                                        <label>背景位置</label>
+                                        <select id="bgPositionSelect">
+                                            <option value="center center">居中</option>
+                                            <option value="top center">顶部居中</option>
+                                            <option value="bottom center">底部居中</option>
+                                            <option value="left center">左侧居中</option>
+                                            <option value="right center">右侧居中</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="option-group">
+                                        <label>背景重复</label>
+                                        <select id="bgRepeatSelect">
+                                            <option value="no-repeat">不重复</option>
+                                            <option value="repeat">重复</option>
+                                            <option value="repeat-x">水平重复</option>
+                                            <option value="repeat-y">垂直重复</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="option-group">
+                                        <label>背景透明度</label>
+                                        <input type="range" id="bgOpacitySlider" min="0" max="100" value="100">
+                                        <span id="bgOpacityValue">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- 操作按钮 -->
                     <div class="action-buttons">
                         <button id="printBtn" class="btn btn-primary">🖨️ 打印</button>

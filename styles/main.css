@@ -447,9 +447,164 @@ input[type="range"]::-webkit-slider-thumb:hover {
     width: 24px;
     height: 24px;
     border: 3px solid var(--border-color);
-    border-radius: 50%;
-    border-top-color: var(--primary-color);
-    animation: spin 1s ease-in-out infinite;
+}
+
+/* 背景设置控件样式 */
+.background-controls {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+}
+
+.background-type-selector {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.background-type-selector label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.background-type-selector input[type="radio"] {
+    margin: 0;
+}
+
+.background-subcontrols {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.color-input-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.color-input-group input[type="color"] {
+    width: 50px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.color-text {
+    flex: 1;
+    padding: 6px var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.file-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.file-input {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.image-preview {
+    margin: var(--spacing-md) 0;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    max-height: 150px;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.background-options {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.option-group label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--secondary-color);
+}
+
+.option-group select,
+.option-group input[type="range"] {
+    width: 100%;
+}
+
+.option-group select {
+    padding: 6px var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.option-group input[type="range"] {
+    margin: var(--spacing-xs) 0;
+}
+
+.btn-small {
+    padding: 4px var(--spacing-sm);
+    font-size: 0.85rem;
+}
+
+/* 背景预览容器样式 */
+.preview-content {
+    position: relative;
+    background-size: var(--bg-size, cover);
+    background-position: var(--bg-position, center center);
+    background-repeat: var(--bg-repeat, no-repeat);
+    background-color: var(--bg-color, #ffffff);
+    transition: all 0.3s ease;
+}
+
+.preview-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-overlay-color, transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.preview-content > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* 打印时的背景透明度支持 */
+@media print {
+    .preview-content::before {
+        /* 确保打印时透明度覆盖层也正常工作 */
+        background-color: var(--bg-overlay-color, transparent);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
 
 /* 预览为空状态 */

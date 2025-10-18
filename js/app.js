@@ -6,6 +6,17 @@ class MarkdownToPDFApp {
         this.currentPrintMode = 'smart';
         this.customStyles = {};
 
+        // 背景设置相关属性
+        this.backgroundSettings = {
+            type: 'solid', // 'solid' 或 'image'
+            solidColor: '#ffffff',
+            imageUrl: '',
+            imageSize: 'cover',
+            imagePosition: 'center center',
+            imageRepeat: 'no-repeat',
+            opacity: 100
+        };
+
         this.init();
     }
 
@@ -38,6 +49,22 @@ class MarkdownToPDFApp {
         this.clearBtn = document.getElementById('clearBtn');
         this.loadSampleBtn = document.getElementById('loadSampleBtn');
         this.printBtn = document.getElementById('printBtn');
+
+        // 背景设置元素
+        this.backgroundTypeRadios = document.querySelectorAll('input[name="backgroundType"]');
+        this.solidBackgroundControls = document.getElementById('solidBackgroundControls');
+        this.imageBackgroundControls = document.getElementById('imageBackgroundControls');
+        this.bgColorPicker = document.getElementById('bgColorPicker');
+        this.bgColorText = document.getElementById('bgColorText');
+        this.bgImageInput = document.getElementById('bgImageInput');
+        this.bgImageClearBtn = document.getElementById('bgImageClearBtn');
+        this.bgImagePreview = document.getElementById('bgImagePreview');
+        this.bgImagePreviewImg = document.getElementById('bgImagePreviewImg');
+        this.bgSizeSelect = document.getElementById('bgSizeSelect');
+        this.bgPositionSelect = document.getElementById('bgPositionSelect');
+        this.bgRepeatSelect = document.getElementById('bgRepeatSelect');
+        this.bgOpacitySlider = document.getElementById('bgOpacitySlider');
+        this.bgOpacityValue = document.getElementById('bgOpacityValue');
 
     }
 
@@ -80,6 +107,46 @@ class MarkdownToPDFApp {
 
         // 监听页面恢复事件，重新绑定事件
         document.addEventListener('pageRestored', this.handlePageRestored.bind(this));
+
+        // 背景设置事件
+        this.bindBackgroundEvents();
+    }
+
+    bindBackgroundEvents() {
+        // 背景类型切换
+        this.backgroundTypeRadios.forEach(radio => {
+            radio.addEventListener('change', this.handleBackgroundTypeChange.bind(this));
+        });
+
+        // 纯色背景设置
+        if (this.bgColorPicker) {
+            this.bgColorPicker.addEventListener('input', this.handleBgColorChange.bind(this));
+        }
+        if (this.bgColorText) {
+            this.bgColorText.addEventListener('input', this.handleBgColorTextChange.bind(this));
+        }
+
+        // 图片背景设置
+        if (this.bgImageInput) {
+            this.bgImageInput.addEventListener('change', this.handleBgImageUpload.bind(this));
+        }
+        if (this.bgImageClearBtn) {
+            this.bgImageClearBtn.addEventListener('click', this.handleBgImageClear.bind(this));
+        }
+
+        // 图片背景选项
+        if (this.bgSizeSelect) {
+            this.bgSizeSelect.addEventListener('change', this.handleBgImageSizeChange.bind(this));
+        }
+        if (this.bgPositionSelect) {
+            this.bgPositionSelect.addEventListener('change', this.handleBgImagePositionChange.bind(this));
+        }
+        if (this.bgRepeatSelect) {
+            this.bgRepeatSelect.addEventListener('change', this.handleBgImageRepeatChange.bind(this));
+        }
+        if (this.bgOpacitySlider) {
+            this.bgOpacitySlider.addEventListener('input', this.handleBgOpacityChange.bind(this));
+        }
     }
 
     setupThemeManager() {
@@ -100,6 +167,214 @@ class MarkdownToPDFApp {
         // 实时更新预览
         this.updatePreview();
     }
+
+    // =================== 背景设置处理函数 ===================
+
+    handleBackgroundTypeChange(event) {
+        const selectedType = event.target.value;
+        this.backgroundSettings.type = selectedType;
+
+        // 切换控件显示
+        if (selectedType === 'solid') {
+            this.solidBackgroundControls.style.display = 'block';
+            this.imageBackgroundControls.style.display = 'none';
+        } else {
+            this.solidBackgroundControls.style.display = 'none';
+            this.imageBackgroundControls.style.display = 'block';
+        }
+
+        this.updatePreview();
+    }
+
+    handleBgColorChange(event) {
+        const color = event.target.value;
+        this.backgroundSettings.solidColor = color;
+
+        // 同步更新文本框
+        if (this.bgColorText) {
+            this.bgColorText.value = color;
+        }
+
+        this.updatePreview();
+    }
+
+    handleBgColorTextChange(event) {
+        const color = event.target.value;
+
+        // 验证颜色格式
+        if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+            this.backgroundSettings.solidColor = color;
+
+            // 同步更新颜色选择器
+            if (this.bgColorPicker) {
+                this.bgColorPicker.value = color;
+            }
+
+            this.updatePreview();
+        }
+    }
+
+    handleBgImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+            this.showToast('请选择图片文件', 'error');
+            return;
+        }
+
+        // 验证文件大小 (5MB限制)
+        if (file.size > 5 * 1024 * 1024) {
+            this.showToast('图片文件不能超过5MB', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            this.backgroundSettings.imageUrl = imageUrl;
+
+            // 显示预览
+            this.showBgImagePreview(imageUrl);
+            this.updatePreview();
+
+            this.showToast('背景图片上传成功', 'success');
+        };
+
+        reader.onerror = () => {
+            this.showToast('图片读取失败', 'error');
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    handleBgImageClear() {
+        this.backgroundSettings.imageUrl = '';
+
+        // 清除文件输入
+        if (this.bgImageInput) {
+            this.bgImageInput.value = '';
+        }
+
+        // 隐藏预览
+        if (this.bgImagePreview) {
+            this.bgImagePreview.style.display = 'none';
+        }
+
+        this.updatePreview();
+        this.showToast('背景图片已清除', 'info');
+    }
+
+    showBgImagePreview(imageUrl) {
+        if (this.bgImagePreview && this.bgImagePreviewImg) {
+            this.bgImagePreviewImg.src = imageUrl;
+            this.bgImagePreview.style.display = 'block';
+        }
+    }
+
+    handleBgImageSizeChange(event) {
+        this.backgroundSettings.imageSize = event.target.value;
+        this.updatePreview();
+    }
+
+    handleBgImagePositionChange(event) {
+        this.backgroundSettings.imagePosition = event.target.value;
+        this.updatePreview();
+    }
+
+    handleBgImageRepeatChange(event) {
+        this.backgroundSettings.imageRepeat = event.target.value;
+        console.log('🔄 背景重复设置变更为:', event.target.value);
+        this.updatePreview();
+    }
+
+    handleBgOpacityChange(event) {
+        const opacity = event.target.value;
+        this.backgroundSettings.opacity = opacity;
+
+        // 更新显示值
+        if (this.bgOpacityValue) {
+            this.bgOpacityValue.textContent = `${opacity}%`;
+        }
+
+        this.updatePreview();
+    }
+
+    applyBackgroundStyles() {
+        if (!this.previewContent) return;
+
+        const settings = this.backgroundSettings;
+
+        if (settings.type === 'solid') {
+            // 纯色背景
+            this.previewContent.style.setProperty('--bg-color', settings.solidColor);
+            this.previewContent.style.setProperty('--bg-size', 'auto');
+            this.previewContent.style.setProperty('--bg-position', 'center center');
+            this.previewContent.style.setProperty('--bg-repeat', 'no-repeat');
+            this.previewContent.style.setProperty('--bg-overlay-color', 'transparent');
+
+            // 移除背景图片
+            this.previewContent.style.backgroundImage = '';
+        } else {
+            // 图片背景
+            if (settings.imageUrl) {
+                // 直接设置背景样式属性
+                this.previewContent.style.backgroundImage = `url(${settings.imageUrl})`;
+                this.previewContent.style.backgroundSize = settings.imageSize;
+                this.previewContent.style.backgroundPosition = settings.imagePosition;
+                this.previewContent.style.backgroundRepeat = settings.imageRepeat;
+
+                console.log('🎨 应用背景设置:', {
+                    imageRepeat: settings.imageRepeat,
+                    imageSize: settings.imageSize,
+                    imagePosition: settings.imagePosition
+                });
+
+                // 同时设置CSS变量以保持一致性
+                this.previewContent.style.setProperty('--bg-size', settings.imageSize);
+                this.previewContent.style.setProperty('--bg-position', settings.imagePosition);
+                this.previewContent.style.setProperty('--bg-repeat', settings.imageRepeat);
+
+                // 计算透明度覆盖层
+                const opacity = settings.opacity / 100;
+                if (opacity < 1) {
+                    // 根据主题背景色创建覆盖层
+                    const computedStyle = window.getComputedStyle(this.previewContent);
+                    const themeBgColor = computedStyle.getPropertyValue('--bg-color') || '#ffffff';
+                    this.previewContent.style.setProperty('--bg-overlay-color', this.hexToRgba(themeBgColor, 1 - opacity));
+                } else {
+                    this.previewContent.style.setProperty('--bg-overlay-color', 'transparent');
+                }
+            } else {
+                // 没有图片时使用纯色
+                this.previewContent.style.setProperty('--bg-color', settings.solidColor);
+                this.previewContent.style.backgroundImage = '';
+                this.previewContent.style.setProperty('--bg-overlay-color', 'transparent');
+            }
+        }
+    }
+
+    hexToRgba(hex, alpha) {
+        // 移除 # 号
+        hex = hex.replace('#', '');
+
+        // 解析RGB
+        let r, g, b;
+        if (hex.length === 3) {
+            r = parseInt(hex[0] + hex[0], 16);
+            g = parseInt(hex[1] + hex[1], 16);
+            b = parseInt(hex[2] + hex[2], 16);
+        } else {
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        }
+
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // =================== 原有的处理函数 ===================
 
     handleThemeChange(event) {
         this.currentTheme = event.target.value;
@@ -258,6 +533,9 @@ $E = mc^2$
 
         // 应用自定义样式到预览容器
         this.applyCustomStylesToPreview();
+
+        // 应用背景样式
+        this.applyBackgroundStyles();
 
         // 检查是否为空内容
         if (!markdownText) {
