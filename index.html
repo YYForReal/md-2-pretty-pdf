@@ -62,6 +62,8 @@
                             <option value="modern">现代风格</option>
                             <option value="elegant">优雅风格</option>
                             <option value="minimal">极简风格</option>
+                            <option value="eye-care">护眼模式</option>
+                            <option value="classic">古典文学</option>
                         </select>
                     </div>
 
@@ -80,8 +82,13 @@
                         <label>字体</label>
                         <select id="fontFamilySelect">
                             <option value="system">系统默认</option>
-                            <option value="serif">衬线字体</option>
-                            <option value="sans-serif">无衬线字体</option>
+                            <option value="chinese-serif">中文衬线（宋体）</option>
+                            <option value="chinese-kai">中文楷体</option>
+                            <option value="chinese-hei">中文黑体</option>
+                            <option value="chinese-fang">中文仿宋</option>
+                            <option value="chinese-song">中文宋体</option>
+                            <option value="serif">英文衬线</option>
+                            <option value="sans-serif">英文无衬线</option>
                             <option value="mono">等宽字体</option>
                         </select>
                     </div>
@@ -106,7 +113,7 @@
     <script src="js/marked@11.1.1.js"></script>
     <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <!-- html2canvas 保留作为备用方案 -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> -->
 
     <!-- 引入应用脚本 -->
     <script src="js/pdfGenerator.js"></script>

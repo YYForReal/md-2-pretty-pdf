@@ -95,6 +95,144 @@
     --blockquote-border: #cccccc;
 }
 
+/* 护眼模式主题 - 豆沙绿护眼 */
+.theme-eye-care {
+    --primary-color: #2C7A2C;
+    --secondary-color: #5A865A;
+    --success-color: #1B5E1B;
+    --bg-color: #E8EDE4;
+    --text-color: #2C3E50;
+    --border-color: #C8D1C3;
+    --hover-bg: #DDE4D8;
+    --font-family: 'Georgia', 'Times New Roman', serif;
+    --heading-color: #1B2A1B;
+    --heading-font: 'Georgia', 'Times New Roman', serif;
+    --code-bg: #DDE4D8;
+    --code-color: #2C7A2C;
+    --link-color: #2C7A2C;
+    --blockquote-bg: #DDE4D8;
+    --blockquote-border: #8FBC8F;
+    --line-height: 1.8;
+}
+
+/* 古典文学主题 - 温柔黄古典 */
+.theme-classic {
+    --primary-color: #8B4513;
+    --secondary-color: #A0522D;
+    --success-color: #654321;
+    --bg-color: #F8F3E9;
+    --text-color: #3E2723;
+    --border-color: #D4AF37;
+    --hover-bg: #F5E6D3;
+    --font-family: 'Palatino', 'Georgia', 'Times New Roman', serif;
+    --heading-color: #5D4037;
+    --heading-font: 'Playfair Display', 'Georgia', serif;
+    --code-bg: #F5E6D3;
+    --code-color: #8B4513;
+    --link-color: #8B4513;
+    --blockquote-bg: #F5E6D3;
+    --blockquote-border: #D4AF37;
+    --line-height: 1.7;
+}
+
+/* 古典主题装饰元素 */
+.theme-classic .preview-content {
+    position: relative;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 40px;
+}
+
+.theme-classic .preview-content::before,
+.theme-classic .preview-content::after {
+    content: "❦";
+    position: absolute;
+    font-size: 24px;
+    color: var(--border-color);
+}
+
+.theme-classic .preview-content::before {
+    top: 15px;
+    left: 15px;
+}
+
+.theme-classic .preview-content::after {
+    bottom: 15px;
+    right: 15px;
+}
+
+.theme-classic .preview-content h1 {
+    text-align: center;
+    font-size: 2.2em;
+    margin-bottom: 1em;
+    padding-bottom: 0.8em;
+    border-bottom: 3px double var(--border-color);
+}
+
+.theme-classic .preview-content h1::before,
+.theme-classic .preview-content h1::after {
+    content: "◆";
+    margin: 0 15px;
+    color: var(--border-color);
+}
+
+.theme-classic .preview-content h2 {
+    text-align: center;
+    font-size: 1.6em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--border-color);
+    margin-top: 2em;
+}
+
+.theme-classic .preview-content p {
+    text-indent: 2em;
+    line-height: var(--line-height);
+}
+
+.theme-classic .preview-content blockquote {
+    background: linear-gradient(135deg, var(--blockquote-bg), var(--bg-color));
+    border-left: 5px solid var(--blockquote-border);
+    position: relative;
+    font-style: italic;
+}
+
+.theme-classic .preview-content blockquote::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-size: 3em;
+    color: var(--blockquote-border);
+    opacity: 0.3;
+}
+
+/* 护眼主题优化 */
+.theme-eye-care .preview-content {
+    line-height: var(--line-height);
+    letter-spacing: 0.5px;
+}
+
+.theme-eye-care .preview-content p {
+    margin-bottom: 1.2em;
+}
+
+.theme-eye-care .preview-content h1,
+.theme-eye-care .preview-content h2,
+.theme-eye-care .preview-content h3 {
+    color: var(--heading-color);
+    font-weight: 600;
+}
+
+.theme-eye-care .preview-content code {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
+}
+
+.theme-eye-care .preview-content blockquote {
+    background: linear-gradient(to right, var(--blockquote-bg), var(--bg-color));
+    border-left: 4px solid var(--blockquote-border);
+}
+
 /* 预览内容样式 */
 .preview-content {
     color: var(--text-color);
@@ -249,7 +387,7 @@
 
 /* 不同页面尺寸的样式 */
 .page-a4 .preview-content {
-    max-width: 210mm;
+    width: 100%;
 }
 
 .page-letter .preview-content {
@@ -258,37 +396,4 @@
 
 .page-a5 .preview-content {
     max-width: 148mm;
-}
-
-/* 打印样式 */
-@media print {
-
-    .preview-container{
-        width: 100%;
-    }
-
-    .preview-content {
-        margin: 0;
-        padding: 0;
-        max-width: 100%;
-    }
-
-    .preview-content a {
-        color: #000;
-        text-decoration: underline;
-    }
-
-    .preview-content h1,
-    .preview-content h2,
-    .preview-content h3,
-    .preview-content h4,
-    .preview-content h5,
-    .preview-content h6 {
-        page-break-after: avoid;
-    }
-
-    .preview-content pre,
-    .preview-content blockquote {
-        page-break-inside: avoid;
-    }
 }

@@ -110,6 +110,46 @@ class ThemeManager {
             '--blockquote-border': '#cccccc'
         });
 
+        // 护眼模式主题 - 豆沙绿护眼
+        presets.set('eye-care', {
+            '--primary-color': '#2C7A2C',
+            '--secondary-color': '#5A865A',
+            '--success-color': '#1B5E1B',
+            '--bg-color': '#E8EDE4',
+            '--text-color': '#2C3E50',
+            '--border-color': '#C8D1C3',
+            '--hover-bg': '#DDE4D8',
+            '--font-family': '"Georgia", "Times New Roman", serif',
+            '--heading-color': '#1B2A1B',
+            '--heading-font': '"Georgia", "Times New Roman", serif',
+            '--code-bg': '#DDE4D8',
+            '--code-color': '#2C7A2C',
+            '--link-color': '#2C7A2C',
+            '--blockquote-bg': '#DDE4D8',
+            '--blockquote-border': '#8FBC8F',
+            '--line-height': '1.8'
+        });
+
+        // 古典文学主题 - 温柔黄古典
+        presets.set('classic', {
+            '--primary-color': '#8B4513',
+            '--secondary-color': '#A0522D',
+            '--success-color': '#654321',
+            '--bg-color': '#F8F3E9',
+            '--text-color': '#3E2723',
+            '--border-color': '#D4AF37',
+            '--hover-bg': '#F5E6D3',
+            '--font-family': '"Palatino", "Georgia", "Times New Roman", serif',
+            '--heading-color': '#5D4037',
+            '--heading-font': '"Playfair Display", "Georgia", serif',
+            '--code-bg': '#F5E6D3',
+            '--code-color': '#8B4513',
+            '--link-color': '#8B4513',
+            '--blockquote-bg': '#F5E6D3',
+            '--blockquote-border': '#D4AF37',
+            '--line-height': '1.7'
+        });
+
         return presets;
     }
 
@@ -213,7 +253,7 @@ class ThemeManager {
      * @returns {boolean} 是否为默认主题
      */
     isDefaultTheme(themeName) {
-        const defaultThemes = ['default', 'academic', 'modern', 'elegant', 'minimal'];
+        const defaultThemes = ['default', 'academic', 'modern', 'elegant', 'minimal', 'eye-care', 'classic'];
         return defaultThemes.includes(themeName);
     }
 

@@ -1,142 +1,142 @@
 // PDF 生成器模块 - 基于Vue实现优化
 class PDFGenerator {
-  constructor() {
-    this.jsPDF = window.jspdf?.jsPDF || jspdf;
-    this.html2canvas = window.html2canvas;
+  constructor(themeManager = null) {
+    this.themeManager = themeManager;
+    this.jsPDF = window.jspdf?.jsPDF ;
+    // this.html2canvas = window.html2canvas;
     this.debugEnabled = true;
 
     if (!this.jsPDF) {
       console.error("jsPDF 未加载");
     }
 
-    if (!this.html2canvas) {
-      console.error("html2canvas 未加载");
-    }
+    // if (!this.html2canvas) {
+    //   console.warn("html2canvas 未加载");
+    // }
   }
 
-  /**
-   * 生成 PDF 文件 - 参考Vue实现优化
-   * @param {HTMLElement} element - 要转换的 HTML 元素
-   * @param {string} pageSize - 页面尺寸 ('a4', 'letter', 'a5')
-   * @param {Object} options - 配置选项
-   * @returns {Promise<void>}
-   */
-  async generatePDF(element, pageSize = "a4", options = {}) {
-    console.log("🚀 PDF生成开始 ====================");
-    console.log("📋 输入参数:", { pageSize, options });
-    console.log("🎯 目标元素:", element);
+//   /**
+//    * 生成 PDF 文件 - 参考Vue实现优化
+//    * @param {HTMLElement} element - 要转换的 HTML 元素
+//    * @param {string} pageSize - 页面尺寸 ('a4', 'letter', 'a5')
+//    * @param {Object} options - 配置选项
+//    * @returns {Promise<void>}
+//    */
+//   async generatePDF(element, pageSize = "a4", options = {}) {
+//     console.log("🚀 PDF生成开始 ====================");
+//     console.log("📋 输入参数:", { pageSize, options });
+//     console.log("🎯 目标元素:", element);
 
-    try {
-      const config = {
-        filename: options.filename || `document-${Date.now()}.pdf`,
-        title: options.title || "Markdown Document",
-        author: options.author || "Markdown to PDF Converter",
-        pageSize: pageSize,
-        ...options,
-      };
+//     try {
+//       const config = {
+//         filename: options.filename || `document-${Date.now()}.pdf`,
+//         title: options.title || "Markdown Document",
+//         author: options.author || "Markdown to PDF Converter",
+//         pageSize: pageSize,
+//         ...options,
+//       };
 
-      this.showLoadingToast();
-      console.log("⏳ 开始创建PDF文档...");
+//       this.showLoadingToast();
+//       console.log("⏳ 开始创建PDF文档...");
 
-      // 1. 准备打印样式 - 隐藏其他页面元素，仅保留预览内容
-      this.prepareElementForPrint(element);
+//       // 1. 准备打印样式 - 隐藏其他页面元素，仅保留预览内容
+//       this.prepareElementForPrint(element);
 
-      // 2. 生成Canvas - 完全参考Vue实现
-      console.log("🎨 开始生成Canvas...");
-      const canvas = await this.html2canvas(element, {
-        scale: 12, // 缩放比例，提高生成图片清晰度
-        useCORS: true, // 允许加载跨域的图片
-        allowTaint: false, // 允许图片跨域，和 useCORS 二者不可共同使用
-        tainttest: true, // 检测每张图片已经加载完成
-        logging: this.debugEnabled, // 日志开关
-        backgroundColor: "#ffffff",
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-      });
+//       // 2. 生成Canvas - 完全参考Vue实现
+//       console.log("🎨 开始生成Canvas...");
+//       const canvas = await this.html2canvas(element, {
+//         scale: 12, // 缩放比例，提高生成图片清晰度
+//         useCORS: true, // 允许加载跨域的图片
+//         allowTaint: false, // 允许图片跨域，和 useCORS 二者不可共同使用
+//         tainttest: true, // 检测每张图片已经加载完成
+//         logging: this.debugEnabled, // 日志开关
+//         width: element.scrollWidth,
+//         height: element.scrollHeight,
+//         windowWidth: element.scrollWidth,
+//         windowHeight: element.scrollHeight,
+//       });
 
-      // 3. 检查Canvas结果
-      this.debugCanvasResult(canvas);
+//       // 3. 检查Canvas结果
+//       this.debugCanvasResult(canvas);
 
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        console.error("❌ Canvas生成失败 - 宽度或高度为0");
-        throw new Error("Canvas 生成失败");
-      }
+//       if (!canvas || canvas.width === 0 || canvas.height === 0) {
+//         console.error("❌ Canvas生成失败 - 宽度或高度为0");
+//         throw new Error("Canvas 生成失败");
+//       }
 
-      // 4. 转换为图片
-      console.log("🖼️ 开始转换Canvas为图片...");
-      const pageData = canvas.toDataURL("image/jpeg", 1.0);
-      console.log("✅ 图片转换成功, 数据长度:", pageData.length);
+//       // 4. 转换为图片
+//       console.log("🖼️ 开始转换Canvas为图片...");
+//       const pageData = canvas.toDataURL("image/jpeg", 1.0);
+//       console.log("✅ 图片转换成功, 数据长度:", pageData.length);
 
-      // 5. 创建PDF文档 - 完全参考Vue实现
-      const contentWidth = canvas.width;
-      const contentHeight = canvas.height;
+//       // 5. 创建PDF文档 - 完全参考Vue实现
+//       const contentWidth = canvas.width;
+//       const contentHeight = canvas.height;
 
-      // 一页pdf显示html页面生成的canvas高度
-      const pageHeight = (contentWidth / 592.28) * 841.89;
-      // 未生成pdf的html页面高度
-      let leftHeight = contentHeight;
-      // 页面偏移
-      let position = 0;
-      // a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
-      const imgWidth = 595.28;
-      const imgHeight = (592.28 / contentWidth) * contentHeight;
+//       // 一页pdf显示html页面生成的canvas高度
+//       const pageHeight = (contentWidth / 592.28) * 841.89;
+//       // 未生成pdf的html页面高度
+//       let leftHeight = contentHeight;
+//       // 页面偏移
+//       let position = 0;
+//       // a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
+//       const imgWidth = 595.28;
+//       const imgHeight = (592.28 / contentWidth) * contentHeight;
 
-      // a4纸纵向，一般默认使用；new JsPDF('landscape'); 横向页面
-      const PDF = new this.jsPDF("", "pt", "a4");
+//       // a4纸纵向，一般默认使用；new JsPDF('landscape'); 横向页面
+//       const PDF = new this.jsPDF("", "pt", "a4");
 
-      // 6. 设置文档属性
-      PDF.setProperties({
-        title: config.title,
-        subject: "Generated from Markdown",
-        author: config.author,
-        keywords: "markdown, pdf",
-        creator: "Markdown to PDF Converter",
-      });
+//       // 6. 设置文档属性
+//       PDF.setProperties({
+//         title: config.title,
+//         subject: "Generated from Markdown",
+//         author: config.author,
+//         keywords: "markdown, pdf",
+//         creator: "Markdown to PDF Converter",
+//       });
 
-      // 7. 添加图片到PDF - 完全参考Vue实现
-      console.log("📄 开始将图片添加到PDF...");
-      console.log("📏 页面尺寸计算:", {
-        contentWidth,
-        contentHeight,
-        imgWidth,
-        imgHeight,
-        pageHeight,
-        leftHeight,
-      });
+//       // 7. 添加图片到PDF - 完全参考Vue实现
+//       console.log("📄 开始将图片添加到PDF...");
+//       console.log("📏 页面尺寸计算:", {
+//         contentWidth,
+//         contentHeight,
+//         imgWidth,
+//         imgHeight,
+//         pageHeight,
+//         leftHeight,
+//       });
 
-      // 当内容未超过pdf一页显示的范围，无需分页
-      if (leftHeight < pageHeight) {
-        console.log("📄 单页内容，直接添加");
-        // addImage(pageData, 'JPEG', 左，上，宽度，高度)设置
-        PDF.addImage(pageData, "JPEG", 0, 0, imgWidth, imgHeight);
-      } else {
-        console.log("📄 内容超过一页，启用多页模式");
-        // 超过一页时，分页打印（每页高度841.89）
-        while (leftHeight > 0) {
-          PDF.addImage(pageData, "JPEG", 0, position, imgWidth, imgHeight);
-          leftHeight -= pageHeight;
-          position -= 841.89;
-          if (leftHeight > 0) {
-            PDF.addPage();
-          }
-        }
-      }
+//       // 当内容未超过pdf一页显示的范围，无需分页
+//       if (leftHeight < pageHeight) {
+//         console.log("📄 单页内容，直接添加");
+//         // addImage(pageData, 'JPEG', 左，上，宽度，高度)设置
+//         PDF.addImage(pageData, "JPEG", 0, 0, imgWidth, imgHeight);
+//       } else {
+//         console.log("📄 内容超过一页，启用多页模式");
+//         // 超过一页时，分页打印（每页高度841.89）
+//         while (leftHeight > 0) {
+//           PDF.addImage(pageData, "JPEG", 0, position, imgWidth, imgHeight);
+//           leftHeight -= pageHeight;
+//           position -= 841.89;
+//           if (leftHeight > 0) {
+//             PDF.addPage();
+//           }
+//         }
+//       }
 
-      // 8. 保存PDF
-      console.log("💾 开始保存PDF...");
-      PDF.save(config.filename);
-      console.log("✅ PDF保存完成");
+//       // 8. 保存PDF
+//       console.log("💾 开始保存PDF...");
+//       PDF.save(config.filename);
+//       console.log("✅ PDF保存完成");
 
-      this.hideLoadingToast();
-      console.log("🎉 PDF生成流程全部完成 ====================");
-    } catch (error) {
-      console.error("❌ PDF生成失败:", error);
-      this.hideLoadingToast();
-      throw error;
-    }
-  }
+//       this.hideLoadingToast();
+//       console.log("🎉 PDF生成流程全部完成 ====================");
+//     } catch (error) {
+//       console.error("❌ PDF生成失败:", error);
+//       this.hideLoadingToast();
+//       throw error;
+//     }
+//   }
   /**
    * 直接打印方法 - 优化实现
    * @param {HTMLElement} element - 要打印的元素
@@ -186,11 +186,12 @@ class PDFGenerator {
       document.title = options.title || "打印文档";
       console.log("✅ body内容替换完成");
       console.log("📄 新body内容长度:", document.body.innerHTML.length);
+    //   console.log("📄 新body内容:", document.documentElement.outerHTML);
       console.log("🏷️ 新页面标题:", document.title);
 
       // 5. 添加打印样式
       console.log("🎨 添加打印样式...");
-      this.addPrintStyles();
+    //   this.addPrintStyles();
 
       // 6. 等待DOM更新
       console.log("⏳ 等待DOM更新...");
@@ -235,12 +236,57 @@ class PDFGenerator {
 
     // 创建打印容器
     const printContainer = document.createElement("div");
-    printContainer.id = "print-container";
-    printContainer.className = "print-container";
+    printContainer.id = "preview-container";
+    printContainer.className = "preview-container" + " " + document.body.className;
+
+    // 应用 customStyles 作为 CSS 变量（优先于主题样式）
+    this.applyCustomStylesAsVariables(printContainer, options);
+
     printContainer.appendChild(clonedElement);
 
     console.log("📦 打印内容准备完成");
     return printContainer.outerHTML;
+  }
+
+  /**
+   * 应用 customStyles 作为 CSS 变量
+   */
+  applyCustomStylesAsVariables(printContainer, options) {
+    console.log("🎨 应用 customStyles 作为 CSS 变量...");
+
+    // 从 options 中获取 customStyles，或者从全局 app 实例获取
+    let customStyles = options.customStyles || {};
+    
+    // 如果 options 中没有 customStyles，尝试从全局 app 实例获取
+    if (!customStyles || Object.keys(customStyles).length === 0) {
+      if (window.app && window.app.customStyles) {
+        customStyles = window.app.customStyles;
+        console.log("📋 从全局 app 实例获取 customStyles:", customStyles);
+      }
+    }
+
+    // 将 customStyles 中的字段转换为 CSS 变量并应用到 printContainer
+    if (customStyles && Object.keys(customStyles).length > 0) {
+      Object.entries(customStyles).forEach(([property, value]) => {
+        if (value && value !== '') {
+          // 将驼峰命名转换为 CSS 变量格式
+          const cssVariable = this.convertToCSSVariable(property);
+          printContainer.style.setProperty(cssVariable, value, 'important');
+          console.log(`✅ 设置 CSS 变量: ${cssVariable} = ${value}`);
+        }
+      });
+      console.log("✅ customStyles 作为 CSS 变量应用完成");
+    } else {
+      console.log("ℹ️ 没有 customStyles 需要应用");
+    }
+  }
+
+  /**
+   * 将属性名转换为 CSS 变量格式
+   */
+  convertToCSSVariable(property) {
+    // 将驼峰命名转换为 kebab-case 并添加 -- 前缀
+    return '--' + property.replace(/([A-Z])/g, '-$1').toLowerCase();
   }
 
   /**
@@ -285,27 +331,10 @@ class PDFGenerator {
     console.log("🎨 应用打印优化样式...");
 
     // 设置基础样式
-    element.style.width = options.pageWidth || "210mm";
-    element.style.margin = "0 auto";
-    element.style.padding = "20mm";
+    // element.style.width = options.pageWidth || "210mm";
+    // element.style.margin = "0 auto";
+    // element.style.padding = "20mm";
     element.style.boxSizing = "border-box";
-
-    // 只在没有主题样式时设置默认样式
-    if (!element.style.backgroundColor || element.style.backgroundColor === 'rgba(0, 0, 0, 0)') {
-      element.style.backgroundColor = "#ffffff";
-    }
-    if (!element.style.color || element.style.color === 'rgba(0, 0, 0, 0)') {
-      element.style.color = "#000000";
-    }
-    if (!element.style.fontFamily) {
-      element.style.fontFamily = options.fontFamily || "Times New Roman, serif";
-    }
-    if (!element.style.fontSize) {
-      element.style.fontSize = options.fontSize || "12pt";
-    }
-    if (!element.style.lineHeight) {
-      element.style.lineHeight = options.lineHeight || "1.4";
-    }
 
     console.log("✅ 打印样式优化完成");
   }
@@ -328,7 +357,7 @@ class PDFGenerator {
                     margin: 0 !important;
                     padding: 0 !important;
                 }
-                .print-container {
+                .preview-container {
                     width: 100% !important;
                     height: 100% !important;
                     margin: 0 !important;
@@ -346,7 +375,6 @@ class PDFGenerator {
                 }
                 /* 保持主题样式 */
                 .preview-content {
-                    background: inherit !important;
                     color: inherit !important;
                     font-family: inherit !important;
                     font-size: inherit !important;
@@ -378,7 +406,7 @@ class PDFGenerator {
     console.log("📏 当前body内容长度:", body.innerHTML.length);
     console.log("👀 body子元素数量:", body.children.length);
 
-    const printContainer = document.getElementById("print-container");
+    const printContainer = document.getElementById("preview-container");
     if (!printContainer) {
       throw new Error("打印容器未正确创建");
     }
@@ -394,7 +422,7 @@ class PDFGenerator {
       console.log("🖨️ 准备执行打印...");
 
       let printExecuted = false;
-      const printTimeout = 10000; // 10秒超时
+      const printTimeout = 100000; // 10秒超时
 
       // 设置打印超时
       const timeoutId = setTimeout(() => {
@@ -427,14 +455,15 @@ class PDFGenerator {
             }
           });
         }
-
+        // alert('卡住')
         // 执行打印
-        window.print();
-        console.log("✅ window.print()调用成功");
-
+        setTimeout(()=>{
+            window.print();
+        },20)
         // 如果没有检测到打印状态变化，5秒后自动恢复
         setTimeout(() => {
-          if (!printExecuted) {
+            console.log("✅ window.print()调用成功");
+            if (!printExecuted) {
             console.log("⏰ 打印后自动恢复定时器触发");
             afterPrintHandler();
           }
@@ -540,41 +569,6 @@ class PDFGenerator {
   }
 
   /**
-   * 智能打印方法 - 自动选择最佳打印方案
-   * @param {HTMLElement} element - 要打印的元素
-   * @param {Object} options - 配置选项
-   * @returns {Promise<void>}
-   */
-  async smartPrint(element, options = {}) {
-    console.log("🧠 智能打印分析中...");
-
-    const elementSize = {
-      width: element.scrollWidth,
-      height: element.scrollHeight,
-    };
-
-    const hasImages = element.querySelectorAll("img").length > 0;
-    const hasComplexLayout =
-      element.querySelectorAll("table, pre, code").length > 0;
-
-    console.log("📊 元素分析:", {
-      size: elementSize,
-      hasImages,
-      hasComplexLayout,
-      contentLength: element.textContent.length,
-    });
-
-    // 如果内容较简单或需要直接打印，使用直接打印方案
-    if (elementSize.height < 2000 && !hasComplexLayout) {
-      console.log("📄 使用直接打印方案");
-      return this.directPrint(element, options);
-    } else {
-      console.log("📋 使用PDF生成方案");
-      return this.generatePDF(element, "a4", options);
-    }
-  }
-
-  /**
    * 准备元素用于打印
    * @param {HTMLElement} element - 要准备的元素
    */
@@ -592,7 +586,6 @@ class PDFGenerator {
             max-width: 210mm;
             margin: 0 auto;
             padding: 20px;
-            background: white;
             color: black;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
@@ -782,9 +775,3 @@ class PDFGenerator {
     }
   }
 }
-
-// 初始化 PDF 生成器
-document.addEventListener("DOMContentLoaded", () => {
-  window.pdfGenerator = PDFGenerator;
-  console.log("✅ PDF生成器类已注册到全局");
-});

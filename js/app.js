@@ -38,10 +38,7 @@ class MarkdownToPDFApp {
         this.clearBtn = document.getElementById('clearBtn');
         this.loadSampleBtn = document.getElementById('loadSampleBtn');
         this.printBtn = document.getElementById('printBtn');
-        this.downloadBtn = document.getElementById('downloadBtn');
 
-        // 打印选项
-        this.printModeSelect = document.getElementById('printModeSelect');
     }
 
     bindEvents() {
@@ -74,14 +71,6 @@ class MarkdownToPDFApp {
         if (this.printBtn) {
             this.printBtn.addEventListener('click', this.handlePrint.bind(this));
         }
-        if (this.downloadBtn) {
-            this.downloadBtn.addEventListener('click', this.handleDownload.bind(this));
-        }
-
-        // 打印选项事件
-        if (this.printModeSelect) {
-            this.printModeSelect.addEventListener('change', this.handlePrintModeChange.bind(this));
-        }
 
         // 键盘快捷键
         document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
@@ -99,8 +88,12 @@ class MarkdownToPDFApp {
     }
 
     setupPDFGenerator() {
-        // PDF生成器已在pdfGenerator.js中自动注册到全局
+        // 初始化 PDF 生成器
+        window.PDFGenerator = PDFGenerator;
+        this.pdfGenerator = new PDFGenerator(this.themeManager);
         console.log('PDF生成器初始化检查:', !!window.pdfGenerator);
+        console.log("✅ PDF生成器类已注册到全局");
+
     }
 
     handleInputChange() {
@@ -123,6 +116,11 @@ class MarkdownToPDFApp {
         const fontFamily = event.target.value;
         const fontFamilyMap = {
             'system': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            'chinese-serif': '"SimSun", "宋体", "STSong", "华文宋体", "NSimSun", serif',
+            'chinese-kai': '"KaiTi", "楷体", "STKaiti", "华文楷体", "楷体_GB2312", serif',
+            'chinese-hei': '"SimHei", "黑体", "STHeiti", "华文黑体", "Microsoft YaHei", "微软雅黑", sans-serif',
+            'chinese-fang': '"FangSong", "仿宋", "STFangsong", "华文仿宋", serif',
+            'chinese-song': '"SimSun", "宋体", "STSong", "华文宋体", "NSimSun", serif',
             'serif': '"Times New Roman", Times, serif',
             'sans-serif': 'Arial, Helvetica, sans-serif',
             'mono': '"Courier New", Courier, monospace'
@@ -142,20 +140,7 @@ class MarkdownToPDFApp {
     }
 
 
-    handlePrintModeChange(event) {
-        this.currentPrintMode = event.target.value;
-        console.log('打印模式切换为:', this.currentPrintMode);
-        this.showToast(`打印模式: ${this.getPrintModeLabel(this.currentPrintMode)}`, 'info');
-    }
 
-    getPrintModeLabel(mode) {
-        const labels = {
-            'smart': '智能选择',
-            'pdf': '生成PDF',
-            'direct': '直接打印'
-        };
-        return labels[mode] || '未知模式';
-    }
 
     handleClear() {
         if (confirm('确定要清空所有内容吗？')) {
@@ -257,45 +242,22 @@ $E = mc^2$
         this.showToast('预览已更新', 'success');
     }
 
-    closePreview() {
-        // 隐藏预览面板
-        if (this.previewSection) {
-            this.previewSection.classList.add('hidden');
-        }
-        if (this.togglePreviewBtn) {
-            this.togglePreviewBtn.textContent = '👁️';
-            this.togglePreviewBtn.title = '显示预览';
-        }
-    }
-
     refreshPreview() {
         this.updatePreview();
         this.showToast('预览已刷新', 'info');
     }
 
-    togglePreview() {
-        if (this.previewSection && this.previewSection.classList.contains('hidden')) {
-            this.previewSection.classList.remove('hidden');
-            if (this.togglePreviewBtn) {
-                this.togglePreviewBtn.textContent = '👁️‍🗨️';
-                this.togglePreviewBtn.title = '隐藏预览';
-            }
-            this.updatePreview();
-        } else {
-            this.closePreview();
-        }
-    }
 
     updatePreview() {
         const markdownText = this.markdownInput ? this.markdownInput.value.trim() : '';
-
-        // 应用自定义样式
-        this.applyCustomStyles();
 
         // 添加页面类
         document.body.className = document.body.className.replace(/page-\w+/g, '');
         document.body.classList.add(`page-${this.currentPageSize}`);
         document.body.classList.add(`theme-${this.currentTheme}`);
+
+        // 应用自定义样式到预览容器
+        this.applyCustomStylesToPreview();
 
         // 检查是否为空内容
         if (!markdownText) {
@@ -374,68 +336,61 @@ $E = mc^2$
         }
     }
 
-    applyCustomStyles() {
-        if (!this.previewContent) return;
+    /**
+     * 应用自定义样式到预览容器
+     */
+    applyCustomStylesToPreview() {
+        console.log("🎨 应用自定义样式到预览容器...");
 
-        const previewElement = this.previewContent;
-
-        if (this.customStyles.fontSize) {
-            previewElement.style.fontSize = this.customStyles.fontSize;
+        // 获取预览容器元素
+        const previewContainer = document.getElementById('preview-container');
+        if (!previewContainer) {
+            console.warn("⚠️ 未找到预览容器元素");
+            return;
         }
 
-        if (this.customStyles.fontFamily) {
-            previewElement.style.fontFamily = this.customStyles.fontFamily;
-        }
+        // 清除之前的自定义样式变量
+        this.clearCustomStyleVariables(previewContainer);
 
-        if (this.customStyles.lineHeight) {
-            previewElement.style.lineHeight = this.customStyles.lineHeight;
-        }
-
-        if (this.customStyles.bgColor) {
-            previewElement.style.backgroundColor = this.customStyles.bgColor;
-        }
-
-        if (this.customStyles.textColor) {
-            previewElement.style.color = this.customStyles.textColor;
-        }
-
-        if (this.customStyles.pdfPadding) {
-            previewElement.style.setProperty('--pdf-padding', this.customStyles.pdfPadding);
-        }
-    }
-
-    async handleDownload() {
-        try {
-            this.downloadBtn.disabled = true;
-            this.downloadBtn.innerHTML = '<span class="loading"></span> 生成中...';
-
-            await this.generatePDFDocument();
-            this.showToast('PDF 生成成功！', 'success');
-        } catch (error) {
-            console.error('PDF 生成失败:', error);
-            this.showToast('PDF 生成失败：' + error.message, 'error');
-        } finally {
-            // 使用延迟恢复，确保页面完全恢复后再恢复按钮状态
-            setTimeout(() => {
-                this.restoreDownloadButtonState();
-            }, 500);
+        // 应用当前的 customStyles
+        if (this.customStyles && Object.keys(this.customStyles).length > 0) {
+            Object.entries(this.customStyles).forEach(([property, value]) => {
+                if (value && value !== '') {
+                    // 将驼峰命名转换为 CSS 变量格式
+                    const cssVariable = this.convertToCSSVariable(property);
+                    previewContainer.style.setProperty(cssVariable, value, 'important');
+                    console.log(`✅ 预览容器设置 CSS 变量: ${cssVariable} = ${value}`);
+                }
+            });
+            console.log("✅ 预览容器自定义样式应用完成");
+        } else {
+            console.log("ℹ️ 没有自定义样式需要应用到预览容器");
         }
     }
 
     /**
-     * 恢复下载按钮状态
+     * 将属性名转换为 CSS 变量格式
      */
-    restoreDownloadButtonState() {
-        // 重新获取按钮元素，因为页面可能已被替换
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (downloadBtn) {
-            downloadBtn.disabled = false;
-            downloadBtn.innerHTML = '📥 下载 PDF';
-            console.log('✅ 下载按钮状态已恢复');
-        } else {
-            console.warn('⚠️ 未找到下载按钮元素');
-        }
+    convertToCSSVariable(property) {
+        // 将驼峰命名转换为 kebab-case 并添加 -- 前缀
+        return '--' + property.replace(/([A-Z])/g, '-$1').toLowerCase();
     }
+
+    /**
+     * 清除自定义样式变量
+     */
+    clearCustomStyleVariables(element) {
+        // 获取所有可能的自定义样式变量名
+        const possibleVariables = [
+            '--font-family', '--font-size', '--text-color', '--background-color',
+            '--line-height', '--font-weight', '--letter-spacing', '--word-spacing'
+        ];
+
+        possibleVariables.forEach(variable => {
+            element.style.removeProperty(variable);
+        });
+    }
+
 
     /**
      * 处理页面恢复事件
@@ -463,7 +418,7 @@ $E = mc^2$
         this.restorePrintButtonState();
         
         // 恢复下载按钮
-        this.restoreDownloadButtonState();
+        // this.restoreDownloadButtonState();
         
         console.log('✅ 所有按钮状态已恢复');
     }
@@ -503,36 +458,21 @@ $E = mc^2$
         }
     }
 
-    async generatePDFDocument() {
-        if (!this.previewContent) {
-            throw new Error('预览内容不存在');
-        }
-
-        // 使用PDF生成器
-        if (window.pdfGenerator) {
-            const pdfGen = new window.pdfGenerator();
-            await pdfGen.generatePDF(
-                this.previewContent,
-                this.currentPageSize,
-                {
-                    filename: `document-${Date.now()}.pdf`,
-                    title: 'Markdown Document',
-                    author: 'Markdown to PDF Converter'
-                }
-            );
-        } else {
-            throw new Error('PDF 生成器未加载');
-        }
-    }
 
     async directPrint() {
         if (!this.previewContent) {
             throw new Error('预览内容不存在');
         }
 
-        if (window.pdfGenerator) {
-            const pdfGen = new window.pdfGenerator();
-            await pdfGen.directPrint(this.previewContent);
+        if (window.PDFGenerator) {
+            const pdfGen = this.pdfGenerator;
+            // 传递 customStyles 到打印选项
+            const printOptions = {
+                customStyles: this.customStyles,
+                title: 'Markdown 文档',
+                pageWidth: '210mm'
+            };
+            await pdfGen.directPrint(this.previewContent, printOptions);
         } else {
             throw new Error('PDF 生成器未加载');
         }
@@ -543,8 +483,8 @@ $E = mc^2$
             throw new Error('预览内容不存在');
         }
 
-        if (window.pdfGenerator) {
-            const pdfGen = new window.pdfGenerator();
+        if (window.PDFGenerator) {
+            const pdfGen = this.pdfGenerator;
             await pdfGen.smartPrint(this.previewContent);
         } else {
             throw new Error('PDF 生成器未加载');
@@ -570,12 +510,6 @@ $E = mc^2$
             this.handleDownload();
         }
 
-        // Ctrl/Cmd + Shift + P: 切换预览显示
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'P') {
-            event.preventDefault();
-            this.togglePreview();
-        }
-
         // F5: 刷新预览（避免页面刷新）
         if (event.key === 'F5') {
             event.preventDefault();
@@ -596,7 +530,9 @@ $E = mc^2$
         // 3秒后移除
         setTimeout(() => {
             toast.classList.remove('show');
-            setTimeout(() => document.body.removeChild(toast), 300);
+            if (document.body && document.body.contains(toast)){
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }
         }, 3000);
     }
 
