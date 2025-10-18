@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to PDF 转换器</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/themes.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 Markdown to PDF 转换器</h1>
+            <p>将您的 Markdown 文档转换为精美的 PDF 文件</p>
+        </header>
+
+        <main class="main-content">
+            <!-- 左侧编辑区域 -->
+            <section class="editor-section">
+                <div class="editor-header">
+                    <h2>📝 Markdown 编辑器</h2>
+                    <div class="editor-actions">
+                        <button id="clearBtn" class="btn btn-secondary">清空</button>
+                        <button id="loadSampleBtn" class="btn btn-secondary">加载示例</button>
+                    </div>
+                </div>
+                <textarea id="markdownInput" placeholder="在此输入您的 Markdown 内容...
+
+# 示例标题
+这是一个段落示例。
+
+## 二级标题
+
+- 列表项 1
+- 列表项 2
+- 列表项 3
+
+**粗体文本** 和 *斜体文本*"></textarea>
+            </section>
+
+            <!-- 中间预览区域 -->
+            <section class="preview-section">
+                <div class="preview-header">
+                    <h2>👁️ 实时预览</h2>
+                </div>
+                <div class="preview-container" id="preview-container">
+                    <div id="previewContent" class="preview-content"></div>
+                </div>
+            </section>
+
+            <!-- 右侧控制面板 -->
+            <section class="control-section">
+                <div class="control-panel">
+                    <h3>🎨 样式设置</h3>
+
+                    <!-- 预设主题 -->
+                    <div class="control-group">
+                        <label>预设主题</label>
+                        <select id="themeSelect">
+                            <option value="default">默认主题</option>
+                            <option value="academic">学术风格</option>
+                            <option value="modern">现代风格</option>
+                            <option value="elegant">优雅风格</option>
+                            <option value="minimal">极简风格</option>
+                        </select>
+                    </div>
+
+                    <!-- 页面设置 -->
+                    <div class="control-group">
+                        <label>页面尺寸</label>
+                        <select id="pageSizeSelect">
+                            <option value="a4">A4</option>
+                            <option value="letter">Letter</option>
+                            <option value="a5">A5</option>
+                        </select>
+                    </div>
+
+                    <!-- 字体设置 -->
+                    <div class="control-group">
+                        <label>字体</label>
+                        <select id="fontFamilySelect">
+                            <option value="system">系统默认</option>
+                            <option value="serif">衬线字体</option>
+                            <option value="sans-serif">无衬线字体</option>
+                            <option value="mono">等宽字体</option>
+                        </select>
+                    </div>
+
+                    <!-- 字体大小 -->
+                    <div class="control-group">
+                        <label>基础字体大小</label>
+                        <input type="range" id="fontSizeSlider" min="10" max="20" value="14">
+                        <span id="fontSizeValue">14px</span>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="action-buttons">
+                        <button id="printBtn" class="btn btn-primary">🖨️ 打印</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 引入外部库 -->
+    <script src="js/marked@11.1.1.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <!-- html2canvas 保留作为备用方案 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- 引入应用脚本 -->
+    <script src="js/pdfGenerator.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/themeManager.js"></script>
+</body>
+</html>

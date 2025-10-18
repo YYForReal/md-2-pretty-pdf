@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__zai-mcp-server__analyze_image",
+      "mcp__chrome-devtools__navigate_page_history",
+      "WebSearch",
+      "mcp__web-search-prime__webSearchPrime",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:juejin.cn)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
