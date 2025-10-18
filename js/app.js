@@ -343,14 +343,15 @@ $E = mc^2$
         console.log("🎨 应用自定义样式到预览容器...");
 
         // 获取预览容器元素
-        const previewContainer = document.getElementById('preview-container');
+        // const previewContainer = document.getElementById('preview-container');
+        const previewContainer = document.documentElement;
         if (!previewContainer) {
             console.warn("⚠️ 未找到预览容器元素");
             return;
         }
 
         // 清除之前的自定义样式变量
-        this.clearCustomStyleVariables(previewContainer);
+        // this.clearCustomStyleVariables(previewContainer);
 
         // 应用当前的 customStyles
         if (this.customStyles && Object.keys(this.customStyles).length > 0) {

@@ -458,7 +458,7 @@ class PDFGenerator {
         // alert('卡住')
         // 执行打印
         setTimeout(()=>{
-            window.print();
+            // window.print();
         },20)
         // 如果没有检测到打印状态变化，5秒后自动恢复
         setTimeout(() => {
@@ -587,7 +587,6 @@ class PDFGenerator {
             margin: 0 auto;
             padding: 20px;
             color: black;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             box-sizing: border-box;
             overflow: visible;

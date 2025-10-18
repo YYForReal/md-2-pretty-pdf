@@ -538,17 +538,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
       print-color-adjust: exact;         /* 标准属性，适用于Firefox */
     }
     
-    /* 方法2: 针对特定元素设置背景色（更推荐，控制更精确） */
+    /* 方法2: 针对特定元素设置背景色（更推荐，控制更精确）
     .your-element-with-bg {
-      background-color: #f1f4f7 !important; /* !important 可提高样式优先级 */
+      background-color: #f1f4f7 !important; 
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-    }
+    } */
     
     /* 示例：确保表格表头背景色打印出来 */
-    table th {
+    /* table th {
       background-color: #ddd !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-    }
+    } */
   }
