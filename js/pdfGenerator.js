@@ -516,57 +516,112 @@ class PDFGenerator {
     return new Promise((resolve, reject) => {
       console.log("🖨️ 准备执行打印...");
 
-      let printExecuted = false;
-      const printTimeout = 100000; // 10秒超时
+      // 改进的状态管理
+      const state = {
+        printExecuted: false,
+        isResolved: false,
+        printDialogOpened: false
+      };
 
-      // 设置打印超时
-      const timeoutId = setTimeout(() => {
-        console.warn("⚠️ 打印超时，强制恢复页面");
-        resolve(); // 不reject，而是继续恢复流程
-      }, printTimeout);
+      // 合理设置时间间隔
+      const timeouts = {
+        printDelay: 100,           // 打印延迟
+        autoRecovery: 12000,       // 自动恢复时间（12秒）
+        forceTimeout: 20000        // 强制超时时间（20秒）
+      };
+
+      // 安全的解析函数，防止重复调用
+      let safeResolve = () => {
+        if (!state.isResolved) {
+          console.log("✅ 打印流程解析完成");
+          state.isResolved = true;
+          clearTimeouts();
+          resolve();
+        }
+      };
+
+      // 清理所有定时器
+      let timeoutIds = [];
+      const clearTimeouts = () => {
+        timeoutIds.forEach(id => clearTimeout(id));
+        timeoutIds = [];
+      };
+
+      // 设置强制超时定时器
+      const forceTimeoutId = setTimeout(() => {
+        if (!state.isResolved) {
+          console.warn("⚠️ 打印强制超时，恢复页面");
+          safeResolve();
+        }
+      }, timeouts.forceTimeout);
+      timeoutIds.push(forceTimeoutId);
 
       try {
-        // 添加打印事件监听（如果浏览器支持）
+        // 打印完成处理函数
         const afterPrintHandler = () => {
-          console.log("👂 检测到打印对话框关闭");
-          printExecuted = true;
-          clearTimeout(timeoutId);
-
-          // 移除事件监听
-          if (window.matchMedia) {
-            window
-              .matchMedia("print")
-              .removeEventListener("change", afterPrintHandler);
+          if (!state.isResolved) {
+            console.log("👂 检测到打印对话框关闭");
+            state.printExecuted = true;
+            safeResolve();
           }
-
-          resolve();
         };
 
-        // 监听打印状态（浏览器兼容方案）
+        // 监听打印状态变化（浏览器兼容方案）
         if (window.matchMedia) {
-          window.matchMedia("print").addEventListener("change", (e) => {
-            if (!e.matches) {
-              afterPrintHandler();
+          const printMediaQuery = window.matchMedia("print");
+
+          const printStateHandler = (e) => {
+            if (e.matches) {
+              // 打印对话框打开
+              if (!state.printDialogOpened) {
+                console.log("📄 打印对话框已打开");
+                state.printDialogOpened = true;
+              }
+            } else {
+              // 打印对话框关闭
+              if (state.printDialogOpened && !state.isResolved) {
+                afterPrintHandler();
+              }
             }
-          });
+          };
+
+          // 添加事件监听
+          printMediaQuery.addEventListener("change", printStateHandler);
+
+          // 清理函数中移除事件监听
+          const originalResolve = safeResolve;
+          safeResolve = () => {
+            printMediaQuery.removeEventListener("change", printStateHandler);
+            originalResolve();
+          };
         }
-        // alert('卡住')
-        // 执行打印
-        setTimeout(()=>{
+
+        // 延迟执行打印
+        const printDelayId = setTimeout(() => {
+          if (!state.isResolved) {
+            console.log("🚀 调用 window.print()");
             window.print();
-        },100)
-        // 如果没有检测到打印状态变化，5秒后自动恢复
-        setTimeout(() => {
-            console.log("✅ window.print()调用成功");
-            if (!printExecuted) {
-            console.log("⏰ 打印后自动恢复定时器触发");
+            console.log("✅ window.print() 调用成功");
+          }
+        }, timeouts.printDelay);
+        timeoutIds.push(printDelayId);
+
+        // 自动恢复定时器 - 仅在未检测到打印完成时触发
+        const autoRecoveryId = setTimeout(() => {
+          if (!state.printExecuted && !state.isResolved) {
+            console.log("⏰ 打印后自动恢复定时器触发（未检测到打印对话框关闭）");
             afterPrintHandler();
           }
-        }, 9000);
+        }, timeouts.autoRecovery);
+        timeoutIds.push(autoRecoveryId);
+
       } catch (error) {
-        printExecuted = true;
-        clearTimeout(timeoutId);
-        reject(error);
+        console.error("❌ 打印执行过程中发生错误:", error);
+        if (!state.isResolved) {
+          state.printExecuted = true;
+          clearTimeouts();
+          reject(error);
+        }
       }
     });
   }
