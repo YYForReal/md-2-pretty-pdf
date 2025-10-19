@@ -13,7 +13,9 @@
       "WebSearch",
       "mcp__web-search-prime__webSearchPrime",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:juejin.cn)"
+      "WebFetch(domain:juejin.cn)",
+      "Bash(python:*)",
+      "Bash(npx serve:*)"
     ],
     "deny": [],
     "ask": []

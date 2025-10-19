@@ -17,6 +17,45 @@ class MarkdownToPDFApp {
             opacity: 100
         };
 
+        // 主题默认配置
+        this.themeDefaults = {
+            default: {
+                textColor: '#333333',
+                fontFamily: 'system',
+                backgroundColor: '#ffffff'
+            },
+            academic: {
+                textColor: '#1f2937',
+                fontFamily: 'chinese-serif',
+                backgroundColor: '#ffffff'
+            },
+            modern: {
+                textColor: '#1e293b',
+                fontFamily: 'chinese-hei',
+                backgroundColor: '#ffffff'
+            },
+            elegant: {
+                textColor: '#1f2937',
+                fontFamily: 'chinese-kai',
+                backgroundColor: '#faf5ff'
+            },
+            minimal: {
+                textColor: '#000000',
+                fontFamily: 'chinese-hei',
+                backgroundColor: '#ffffff'
+            },
+            'eye-care': {
+                textColor: '#2C3E50',
+                fontFamily: 'chinese-serif',
+                backgroundColor: '#E8EDE4'
+            },
+            classic: {
+                textColor: '#3E2723',
+                fontFamily: 'chinese-fang',
+                backgroundColor: '#F8F3E9'
+            }
+        };
+
         this.init();
     }
 
@@ -26,6 +65,9 @@ class MarkdownToPDFApp {
         this.loadSampleContent();
         this.setupThemeManager();
         this.setupPDFGenerator();
+
+        // 初始化主题控件
+        this.updateThemeControls(this.currentTheme);
 
         // 初始化预览
         this.updatePreview();
@@ -44,6 +86,8 @@ class MarkdownToPDFApp {
         this.fontFamilySelect = document.getElementById('fontFamilySelect');
         this.fontSizeSlider = document.getElementById('fontSizeSlider');
         this.fontSizeValue = document.getElementById('fontSizeValue');
+        this.fontColorPicker = document.getElementById('fontColorPicker');
+        this.fontColorText = document.getElementById('fontColorText');
 
         // 按钮元素
         this.clearBtn = document.getElementById('clearBtn');
@@ -86,6 +130,12 @@ class MarkdownToPDFApp {
         }
         if (this.fontSizeSlider) {
             this.fontSizeSlider.addEventListener('input', this.handleFontSizeChange.bind(this));
+        }
+        if (this.fontColorPicker) {
+            this.fontColorPicker.addEventListener('input', this.handleFontColorChange.bind(this));
+        }
+        if (this.fontColorText) {
+            this.fontColorText.addEventListener('input', this.handleFontColorTextChange.bind(this));
         }
 
         // 按钮事件 - 添加空值检查
@@ -379,7 +429,76 @@ class MarkdownToPDFApp {
     handleThemeChange(event) {
         this.currentTheme = event.target.value;
         this.themeManager.applyTheme(this.currentTheme);
+
+        // 同步更新主题相关选择器的值
+        this.updateThemeControls(this.currentTheme);
+
         this.updatePreview();
+    }
+
+    /**
+     * 根据主题更新相关控件的值
+     */
+    updateThemeControls(theme) {
+        const defaults = this.themeDefaults[theme];
+        if (!defaults) {
+            console.warn(`⚠️ 未找到主题 ${theme} 的默认配置`);
+            return;
+        }
+
+        console.log(`🎨 更新主题 ${theme} 的控件:`, defaults);
+
+        // 更新字体颜色选择器
+        if (defaults.textColor && this.fontColorPicker && this.fontColorText) {
+            this.fontColorPicker.value = defaults.textColor;
+            this.fontColorText.value = defaults.textColor;
+            this.customStyles.textColor = defaults.textColor;
+            console.log(`✅ 更新字体颜色为: ${defaults.textColor}`);
+        }
+
+        // 更新字体选择器
+        if (defaults.fontFamily && this.fontFamilySelect) {
+            this.fontFamilySelect.value = defaults.fontFamily;
+
+            // 触发字体变更事件以更新样式
+            const fontFamilyMap = {
+                'system': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                'chinese-serif': '"SimSun", "宋体", "STSong", "华文宋体", "NSimSun", serif',
+                'chinese-kai': '"KaiTi", "楷体", "STKaiti", "华文楷体", "楷体_GB2312", serif',
+                'chinese-hei': '"SimHei", "黑体", "STHeiti", "华文黑体", "Microsoft YaHei", "微软雅黑", sans-serif',
+                'chinese-fang': '"FangSong", "仿宋", "STFangsong", "华文仿宋", serif',
+                'chinese-song': '"SimSun", "宋体", "STSong", "华文宋体", "NSimSun", serif',
+                'serif': 'Times New Roman, Times, serif',
+                'sans-serif': 'Arial, Helvetica, sans-serif',
+                'mono': '"Courier New", Courier, monospace'
+            };
+
+            this.customStyles.fontFamily = fontFamilyMap[defaults.fontFamily];
+            console.log(`✅ 更新字体为: ${defaults.fontFamily} (${fontFamilyMap[defaults.fontFamily]})`);
+        }
+
+        // 更新背景色
+        if (defaults.backgroundColor) {
+            // 设置背景类型为纯色
+            this.backgroundSettings.type = 'solid';
+            this.backgroundSettings.solidColor = defaults.backgroundColor;
+
+            // 更新背景颜色选择器
+            if (this.bgColorPicker && this.bgColorText) {
+                this.bgColorPicker.value = defaults.backgroundColor;
+                this.bgColorText.value = defaults.backgroundColor;
+
+                // 确保纯色背景控件被选中
+                const solidRadio = document.querySelector('input[name="backgroundType"][value="solid"]');
+                if (solidRadio) {
+                    solidRadio.checked = true;
+                    // 触发背景类型变更事件
+                    this.handleBackgroundTypeChange({ target: solidRadio });
+                }
+            }
+
+            console.log(`✅ 更新背景色为: ${defaults.backgroundColor}`);
+        }
     }
 
     handlePageSizeChange(event) {
@@ -412,6 +531,35 @@ class MarkdownToPDFApp {
         }
         this.customStyles.fontSize = `${fontSize}px`;
         this.updatePreview();
+    }
+
+    handleFontColorChange(event) {
+        const color = event.target.value;
+        console.log('🎨 字体颜色改变:', color);
+
+        // 同步更新文本框
+        if (this.fontColorText) {
+            this.fontColorText.value = color;
+        }
+
+        this.customStyles.textColor = color;
+        console.log('📋 当前自定义样式:', this.customStyles);
+        this.updatePreview();
+    }
+
+    handleFontColorTextChange(event) {
+        const color = event.target.value;
+
+        // 验证颜色格式
+        if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+            // 同步更新颜色选择器
+            if (this.fontColorPicker) {
+                this.fontColorPicker.value = color;
+            }
+
+            this.customStyles.textColor = color;
+            this.updatePreview();
+        }
     }
 
 
@@ -628,8 +776,8 @@ $E = mc^2$
             return;
         }
 
-        // 清除之前的自定义样式变量
-        // this.clearCustomStyleVariables(previewContainer);
+
+        console.log("📋 当前customStyles内容:", this.customStyles);
 
         // 应用当前的 customStyles
         if (this.customStyles && Object.keys(this.customStyles).length > 0) {
@@ -639,6 +787,10 @@ $E = mc^2$
                     const cssVariable = this.convertToCSSVariable(property);
                     previewContainer.style.setProperty(cssVariable, value, 'important');
                     console.log(`✅ 预览容器设置 CSS 变量: ${cssVariable} = ${value}`);
+
+                    // 验证设置是否成功
+                    const computedValue = getComputedStyle(previewContainer).getPropertyValue(cssVariable);
+                    console.log(`🔍 实际CSS变量值: ${cssVariable} = ${computedValue}`);
                 }
             });
             console.log("✅ 预览容器自定义样式应用完成");
@@ -654,22 +806,6 @@ $E = mc^2$
         // 将驼峰命名转换为 kebab-case 并添加 -- 前缀
         return '--' + property.replace(/([A-Z])/g, '-$1').toLowerCase();
     }
-
-    /**
-     * 清除自定义样式变量
-     */
-    clearCustomStyleVariables(element) {
-        // 获取所有可能的自定义样式变量名
-        const possibleVariables = [
-            '--font-family', '--font-size', '--text-color', '--background-color',
-            '--line-height', '--font-weight', '--letter-spacing', '--word-spacing'
-        ];
-
-        possibleVariables.forEach(variable => {
-            element.style.removeProperty(variable);
-        });
-    }
-
 
     /**
      * 处理页面恢复事件

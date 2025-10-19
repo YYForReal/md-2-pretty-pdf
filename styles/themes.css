@@ -6,12 +6,9 @@
     --secondary-color: #64748b;
     --success-color: #16a34a;
     --bg-color: #ffffff;
-    --text-color: #333333;
     --border-color: #e2e8f0;
     --hover-bg: #f8fafc;
-    /* --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; */
     --heading-color: #1f2937;
-    /* --heading-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; */
     --code-bg: #f3f4f6;
     --code-color: #e11d48;
     --link-color: #2563eb;
@@ -25,12 +22,9 @@
     --secondary-color: #4b5563;
     --success-color: #059669;
     --bg-color: #ffffff;
-    --text-color: #1f2937;
     --border-color: #d1d5db;
     --hover-bg: #f9fafb;
-    /* --font-family: 'Times New Roman', Times, serif; */
     --heading-color: #111827;
-    /* --heading-font: 'Times New Roman', Times, serif; */
     --code-bg: #f3f4f6;
     --code-color: #7c3aed;
     --link-color: #1e40af;
@@ -44,12 +38,9 @@
     --secondary-color: #6366f1;
     --success-color: #10b981;
     --bg-color: #ffffff;
-    --text-color: #1e293b;
-    --border-color: #e2e8f0;
+        --border-color: #e2e8f0;
     --hover-bg: #f0f9ff;
-    /* --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; */
     --heading-color: #0f172a;
-    /* --heading-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; */
     --code-bg: #f1f5f9;
     --code-color: #0f766e;
     --link-color: #3b82f6;
@@ -63,12 +54,9 @@
     --secondary-color: #a78bfa;
     --success-color: #10b981;
     --bg-color: #faf5ff;
-    --text-color: #1f2937;
-    --border-color: #e9d5ff;
+        --border-color: #e9d5ff;
     --hover-bg: #f3e8ff;
-    /* --font-family: 'Georgia', 'Times New Roman', serif; */
     --heading-color: #4c1d95;
-    /* --heading-font: 'Playfair Display', 'Georgia', serif; */
     --code-bg: #ede9fe;
     --code-color: #7c3aed;
     --link-color: #7c3aed;
@@ -82,12 +70,9 @@
     --secondary-color: #666666;
     --success-color: #333333;
     --bg-color: #ffffff;
-    --text-color: #000000;
-    --border-color: #e5e5e5;
+        --border-color: #e5e5e5;
     --hover-bg: #fafafa;
-    /* --font-family: 'Helvetica Neue', Arial, sans-serif; */
     --heading-color: #000000;
-    /* --heading-font: 'Helvetica Neue', Arial, sans-serif; */
     --code-bg: #f5f5f5;
     --code-color: #000000;
     --link-color: #000000;
@@ -101,12 +86,9 @@
     --secondary-color: #5A865A;
     --success-color: #1B5E1B;
     --bg-color: #E8EDE4;
-    --text-color: #2C3E50;
-    --border-color: #C8D1C3;
+        --border-color: #C8D1C3;
     --hover-bg: #DDE4D8;
-    /* --font-family: 'Georgia', 'Times New Roman', serif; */
     --heading-color: #1B2A1B;
-    /* --heading-font: 'Georgia', 'Times New Roman', serif; */
     --code-bg: #DDE4D8;
     --code-color: #2C7A2C;
     --link-color: #2C7A2C;
@@ -121,12 +103,9 @@
     --secondary-color: #A0522D;
     --success-color: #654321;
     --bg-color: #F8F3E9;
-    --text-color: #3E2723;
-    --border-color: #D4AF37;
+        --border-color: #D4AF37;
     --hover-bg: #F5E6D3;
-    /* --font-family: 'Palatino', 'Georgia', 'Times New Roman', serif; */
     --heading-color: #5D4037;
-    /* --heading-font: 'Playfair Display', 'Georgia', serif; */
     --code-bg: #F5E6D3;
     --code-color: #8B4513;
     --link-color: #8B4513;
@@ -219,7 +198,7 @@
 .theme-eye-care .preview-content h1,
 .theme-eye-care .preview-content h2,
 .theme-eye-care .preview-content h3 {
-    color: var(--heading-color);
+    /* color: var(--heading-color); */
     font-weight: 600;
 }
 
@@ -248,7 +227,7 @@
 .preview-content h4,
 .preview-content h5,
 .preview-content h6 {
-    color: var(--heading-color, var(--text-color));
+    /* color: var(--heading-color, var(--text-color)); */
     font-family: var(--heading-font, var(--font-family));
     font-weight: 600;
     margin-top: 1.5em;
@@ -396,4 +375,9 @@
 
 .page-a5 .preview-content {
     max-width: 148mm;
+}
+
+
+mark {
+    color: var(--text-color);
 }
