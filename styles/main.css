@@ -48,6 +48,33 @@
     box-sizing: border-box;
 }
 
+/* MathJax 数学公式样式 */
+.MathJax {
+    font-size: 1.1em !important;
+}
+
+/* 行内数学公式样式 */
+.MathJax_Display {
+    margin: 1em 0 !important;
+    text-align: center;
+}
+
+/* 块级数学公式样式 */
+.mjx-chtml {
+    font-size: 1.1em !important;
+}
+
+/* 数学公式在打印时的样式 */
+@media print {
+    .MathJax {
+        font-size: 12pt !important;
+    }
+    
+    .mjx-chtml {
+        font-size: 12pt !important;
+    }
+}
+
 body {
     font-family: var(--font-family);
     font-size: var(--font-size);

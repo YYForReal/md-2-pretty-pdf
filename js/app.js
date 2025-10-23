@@ -578,13 +578,59 @@ class MarkdownToPDFApp {
     loadSampleContent() {
         const sampleContent = `# 示例文档
 
-这是一个 **Markdown to PDF 转换器** 的示例文档，展示了各种 Markdown 元素的渲染效果。
+这是一个 **Markdown to PDF 转换器** 的示例文档，展示了各种 Markdown 元素的渲染效果，包括数学公式支持。
 
 ## 文本格式
 
 这是 *斜体文本*，这是 **粗体文本**，这是 ***粗斜体文本***。
 
 也可以使用 HTML 的 <u>下划线</u> 和 <mark>高亮</u> 标记。
+
+## 数学公式支持
+
+### 行内数学公式
+
+爱因斯坦质能方程：$E = mc^2$
+
+二次方程的解：$x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$
+
+### 块级数学公式
+
+薛定谔方程：
+
+$$i\\hbar\\frac{\\partial}{\\partial t}\\Psi(\\mathbf{r},t) = \\hat{H}\\Psi(\\mathbf{r},t)$$
+
+麦克斯韦方程组：
+
+$$\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\epsilon_0}$$
+
+$$\\nabla \\cdot \\mathbf{B} = 0$$
+
+$$\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}$$
+
+$$\\nabla \\times \\mathbf{B} = \\mu_0\\mathbf{J} + \\mu_0\\epsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t}$$
+
+### 复杂数学公式
+
+傅里叶变换：
+
+$$\\mathcal{F}\\{f(t)\\} = \\int_{-\\infty}^{\\infty} f(t) e^{-2\\pi i \\xi t} dt$$
+
+矩阵运算：
+
+$$\\begin{pmatrix}
+a & b \\\\
+c & d
+\\end{pmatrix}
+\\begin{pmatrix}
+x \\\\
+y
+\\end{pmatrix}
+=
+\\begin{pmatrix}
+ax + by \\\\
+cx + dy
+\\end{pmatrix}$$
 
 ## 列表
 
@@ -637,10 +683,6 @@ greet('World');
 ## 分隔线
 
 ---
-
-## 数学公式（如果支持）
-
-$E = mc^2$
 
 ## 任务列表
 
@@ -699,6 +741,9 @@ $E = mc^2$
             const htmlContent = this.parseMarkdown(markdownText);
             this.previewContent.innerHTML = htmlContent;
             this.hideLoadingPreview();
+            
+            // 在内容更新后触发 MathJax 渲染
+            this.triggerMathJaxRender();
         }, 100);
     }
 
@@ -734,6 +779,8 @@ $E = mc^2$
     }
 
     parseMarkdown(markdown) {
+        let htmlContent;
+        
         if (typeof marked !== 'undefined') {
             // 配置 marked 选项
             marked.setOptions({
@@ -744,11 +791,11 @@ $E = mc^2$
                 smartLists: true,
                 smartypants: true
             });
-            return marked.parse(markdown);
+            htmlContent = marked.parse(markdown);
         } else {
             console.warn("备用方案")
             // 简单的 Markdown 解析（备用方案）
-            return markdown
+            htmlContent = markdown
                 .replace(/^# (.*$)/gim, '<h1>$1</h1>')
                 .replace(/^## (.*$)/gim, '<h2>$1</h2>')
                 .replace(/^### (.*$)/gim, '<h3>$1</h3>')
@@ -759,6 +806,48 @@ $E = mc^2$
                 .replace(/\n\n/g, '</p><p>')
                 .replace(/^/, '<p>')
                 .replace(/$/, '</p>');
+        }
+
+        // 处理数学公式渲染
+        this.renderMathFormulas(htmlContent);
+        
+        return htmlContent;
+    }
+
+    /**
+     * 渲染数学公式
+     */
+    renderMathFormulas(htmlContent) {
+        // 如果 MathJax 已加载，则处理数学公式
+        if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.document) {
+            // 使用 MathJax 处理数学公式
+            MathJax.typesetPromise([htmlContent]).then(() => {
+                console.log('MathJax 数学公式渲染完成');
+            }).catch((err) => {
+                console.error('MathJax 渲染错误:', err);
+            });
+        } else {
+            console.log('MathJax 尚未加载，数学公式将在加载后自动渲染');
+        }
+    }
+
+    /**
+     * 触发 MathJax 渲染
+     */
+    triggerMathJaxRender() {
+        if (typeof MathJax !== 'undefined' && MathJax.startup && MathJax.startup.document) {
+            // 使用 MathJax 处理预览内容中的数学公式
+            MathJax.typesetPromise([this.previewContent]).then(() => {
+                console.log('✅ MathJax 数学公式渲染完成');
+            }).catch((err) => {
+                console.error('❌ MathJax 渲染错误:', err);
+            });
+        } else {
+            console.log('⏳ MathJax 尚未完全加载，等待加载完成...');
+            // 如果 MathJax 还未加载完成，等待一段时间后重试
+            setTimeout(() => {
+                this.triggerMathJaxRender();
+            }, 500);
         }
     }
 
