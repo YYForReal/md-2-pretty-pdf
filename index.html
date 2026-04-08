@@ -185,6 +185,88 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- AI 背景图生成 -->
+                            <div class="ai-background-section">
+                                <div class="ai-background-toggle" id="aiBackgroundToggle">
+                                    <span class="ai-background-icon">🤖</span>
+                                    <span class="ai-background-title">AI 背景图生成</span>
+                                    <span class="ai-background-arrow">▸</span>
+                                </div>
+                                <div class="ai-background-content" id="aiBackgroundContent" style="display: none;">
+                                    <!-- LLM 配置 -->
+                                    <div class="ai-config-section">
+                                        <div class="ai-config-toggle" id="aiConfigToggle">
+                                            <span>LLM 配置</span>
+                                            <span class="ai-config-arrow">▸</span>
+                                        </div>
+                                        <div class="ai-config-content" id="aiConfigContent" style="display: none;">
+                                            <div class="control-group">
+                                                <label>模型提供商</label>
+                                                <select id="aiProviderSelect">
+                                                    <option value="custom">自定义</option>
+                                                    <option value="openai">OpenAI (GPT-4o)</option>
+                                                    <option value="anthropic">Anthropic (Claude)</option>
+                                                    <option value="google">Google AI (Gemini)</option>
+                                                    <option value="deepseek">DeepSeek</option>
+                                                    <option value="siliconflow">硅基流动</option>
+                                                    <option value="aliyun">阿里通义</option>
+                                                    <option value="tencent">腾讯混元</option>
+                                                    <option value="baidu">百度文心</option>
+                                                    <option value="nvidia">NVIDIA</option>
+                                                </select>
+                                            </div>
+                                            <div class="control-group">
+                                                <label>Base URL</label>
+                                                <input type="text" id="aiBaseURL" class="color-text" placeholder="https://api.openai.com/v1" style="width: 100%; padding: 6px 8px;">
+                                            </div>
+                                            <div class="control-group">
+                                                <label>API Key <span class="ai-key-hint">(🔒 仅保存在本地浏览器)</span></label>
+                                                <input type="password" id="aiAPIKey" class="color-text" placeholder="sk-..." style="width: 100%; padding: 6px 8px;">
+                                                <a href="#" id="aiAPIKeyLink" class="ai-api-key-link" target="_blank" rel="noopener" style="display: none; font-size: 0.8rem; margin-top: 4px;">获取 API Key</a>
+                                            </div>
+                                            <div class="control-group">
+                                                <label>Model Name</label>
+                                                <input type="text" id="aiModelName" class="color-text" placeholder="gpt-4o" style="width: 100%; padding: 6px 8px;">
+                                            </div>
+                                            <div class="ai-config-actions">
+                                                <button id="aiSaveConfigBtn" class="btn btn-small btn-success">保存配置</button>
+                                                <button id="aiTestConnectionBtn" class="btn btn-small btn-secondary">测试连接</button>
+                                            </div>
+                                            <div class="ai-config-status" id="aiConfigStatus"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 风格设置 -->
+                                    <div class="ai-style-section">
+                                        <div class="control-group">
+                                            <label>风格描述 <span class="ai-style-hint">(可选，留空则由 AI 自动分析内容)</span></label>
+                                            <textarea id="aiStylePrompt" class="ai-style-textarea" placeholder="例如：科技感蓝色渐变、中国风水墨画意境、简约商务风格..." rows="3"></textarea>
+                                        </div>
+                                        <button id="aiGenerateBtn" class="btn btn-primary ai-generate-btn">
+                                            <span class="ai-generate-icon">✨</span> 生成 AI 背景
+                                        </button>
+                                    </div>
+
+                                    <!-- 生成结果 -->
+                                    <div class="ai-result-section" id="aiResultSection" style="display: none;">
+                                        <div class="ai-result-status">
+                                            状态: <span id="aiResultStatusText">未生成</span>
+                                        </div>
+                                        <div class="ai-css-preview-toggle" id="aiCssPreviewToggle">
+                                            <span>CSS 代码预览</span>
+                                            <span class="ai-css-preview-arrow">▸</span>
+                                        </div>
+                                        <div class="ai-css-preview-content" id="aiCssPreviewContent" style="display: none;">
+                                            <pre class="ai-css-code" id="aiCssCode"></pre>
+                                        </div>
+                                        <div class="ai-result-actions">
+                                            <button id="aiApplyBtn" class="btn btn-small btn-success">应用背景</button>
+                                            <button id="aiClearBtn" class="btn btn-small btn-secondary">清除 AI 背景</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -225,6 +307,7 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> -->
 
     <!-- 引入应用脚本 -->
+    <script src="js/aiBackgroundService.js"></script>
     <script src="js/pdfGenerator.js"></script>
     <script src="js/app.js"></script>
     <script src="js/themeManager.js"></script>

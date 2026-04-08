@@ -17,6 +17,15 @@ class MarkdownToPDFApp {
             opacity: 100
         };
 
+        // AI 背景设置
+        this.aiBackgroundSettings = {
+            enabled: false,
+            config: { baseURL: '', apiKey: '', model: '', provider: 'custom' },
+            generatedCSS: '',
+            stylePrompt: '',
+            autoStyle: true
+        };
+
         // 主题默认配置
         this.themeDefaults = {
             default: {
@@ -65,6 +74,8 @@ class MarkdownToPDFApp {
         this.loadSampleContent();
         this.setupThemeManager();
         this.setupPDFGenerator();
+        this.setupAIBackgroundService();
+        this.loadAIConfig();
 
         // 初始化主题控件
         this.updateThemeControls(this.currentTheme);
@@ -109,6 +120,29 @@ class MarkdownToPDFApp {
         this.bgRepeatSelect = document.getElementById('bgRepeatSelect');
         this.bgOpacitySlider = document.getElementById('bgOpacitySlider');
         this.bgOpacityValue = document.getElementById('bgOpacityValue');
+
+        // AI 背景设置元素
+        this.aiBackgroundToggle = document.getElementById('aiBackgroundToggle');
+        this.aiBackgroundContent = document.getElementById('aiBackgroundContent');
+        this.aiConfigToggle = document.getElementById('aiConfigToggle');
+        this.aiConfigContent = document.getElementById('aiConfigContent');
+        this.aiProviderSelect = document.getElementById('aiProviderSelect');
+        this.aiBaseURL = document.getElementById('aiBaseURL');
+        this.aiAPIKey = document.getElementById('aiAPIKey');
+        this.aiAPIKeyLink = document.getElementById('aiAPIKeyLink');
+        this.aiModelName = document.getElementById('aiModelName');
+        this.aiSaveConfigBtn = document.getElementById('aiSaveConfigBtn');
+        this.aiTestConnectionBtn = document.getElementById('aiTestConnectionBtn');
+        this.aiConfigStatus = document.getElementById('aiConfigStatus');
+        this.aiStylePrompt = document.getElementById('aiStylePrompt');
+        this.aiGenerateBtn = document.getElementById('aiGenerateBtn');
+        this.aiResultSection = document.getElementById('aiResultSection');
+        this.aiResultStatusText = document.getElementById('aiResultStatusText');
+        this.aiCssPreviewToggle = document.getElementById('aiCssPreviewToggle');
+        this.aiCssPreviewContent = document.getElementById('aiCssPreviewContent');
+        this.aiCssCode = document.getElementById('aiCssCode');
+        this.aiApplyBtn = document.getElementById('aiApplyBtn');
+        this.aiClearBtn = document.getElementById('aiClearBtn');
 
     }
 
@@ -160,6 +194,9 @@ class MarkdownToPDFApp {
 
         // 背景设置事件
         this.bindBackgroundEvents();
+
+        // AI 背景设置事件
+        this.bindAIBackgroundEvents();
     }
 
     bindBackgroundEvents() {
@@ -197,6 +234,306 @@ class MarkdownToPDFApp {
         if (this.bgOpacitySlider) {
             this.bgOpacitySlider.addEventListener('input', this.handleBgOpacityChange.bind(this));
         }
+    }
+
+    // =================== AI 背景设置事件绑定 ===================
+
+    bindAIBackgroundEvents() {
+        // AI 背景区域折叠/展开
+        if (this.aiBackgroundToggle) {
+            this.aiBackgroundToggle.addEventListener('click', this.toggleAIBackgroundContent.bind(this));
+        }
+
+        // LLM 配置区域折叠/展开
+        if (this.aiConfigToggle) {
+            this.aiConfigToggle.addEventListener('click', this.toggleAIConfigContent.bind(this));
+        }
+
+        // 模型提供商选择
+        if (this.aiProviderSelect) {
+            this.aiProviderSelect.addEventListener('change', this.handleAIProviderChange.bind(this));
+        }
+
+        // 保存配置
+        if (this.aiSaveConfigBtn) {
+            this.aiSaveConfigBtn.addEventListener('click', this.saveAIConfig.bind(this));
+        }
+
+        // 测试连接
+        if (this.aiTestConnectionBtn) {
+            this.aiTestConnectionBtn.addEventListener('click', this.testAIConnection.bind(this));
+        }
+
+        // 生成 AI 背景
+        if (this.aiGenerateBtn) {
+            this.aiGenerateBtn.addEventListener('click', this.generateAIBackground.bind(this));
+        }
+
+        // CSS 代码预览折叠
+        if (this.aiCssPreviewToggle) {
+            this.aiCssPreviewToggle.addEventListener('click', this.toggleAICssPreview.bind(this));
+        }
+
+        // 应用背景
+        if (this.aiApplyBtn) {
+            this.aiApplyBtn.addEventListener('click', this.applyAIBackground.bind(this));
+        }
+
+        // 清除 AI 背景
+        if (this.aiClearBtn) {
+            this.aiClearBtn.addEventListener('click', this.clearAIBackground.bind(this));
+        }
+    }
+
+    toggleAIBackgroundContent() {
+        const isVisible = this.aiBackgroundContent.style.display !== 'none';
+        this.aiBackgroundContent.style.display = isVisible ? 'none' : 'block';
+        const arrow = this.aiBackgroundToggle.querySelector('.ai-background-arrow');
+        if (arrow) arrow.textContent = isVisible ? '▸' : '▾';
+    }
+
+    toggleAIConfigContent() {
+        const isVisible = this.aiConfigContent.style.display !== 'none';
+        this.aiConfigContent.style.display = isVisible ? 'none' : 'block';
+        const arrow = this.aiConfigToggle.querySelector('.ai-config-arrow');
+        if (arrow) arrow.textContent = isVisible ? '▸' : '▾';
+    }
+
+    toggleAICssPreview() {
+        const isVisible = this.aiCssPreviewContent.style.display !== 'none';
+        this.aiCssPreviewContent.style.display = isVisible ? 'none' : 'block';
+        const arrow = this.aiCssPreviewToggle.querySelector('.ai-css-preview-arrow');
+        if (arrow) arrow.textContent = isVisible ? '▸' : '▾';
+    }
+
+    handleAIProviderChange(event) {
+        const provider = event.target.value;
+        this.aiBackgroundSettings.config.provider = provider;
+
+        const providerConfig = this.aiBackgroundService.getProvider(provider);
+        if (providerConfig) {
+            if (providerConfig.baseURL) {
+                this.aiBaseURL.value = providerConfig.baseURL;
+                this.aiBackgroundSettings.config.baseURL = providerConfig.baseURL;
+            }
+            if (providerConfig.model) {
+                this.aiModelName.value = providerConfig.model;
+                this.aiBackgroundSettings.config.model = providerConfig.model;
+            }
+            // 更新 API Key 链接
+            if (providerConfig.keyUrl && this.aiAPIKeyLink) {
+                this.aiAPIKeyLink.href = providerConfig.keyUrl;
+                this.aiAPIKeyLink.style.display = 'inline-block';
+                this.aiAPIKeyLink.textContent = `获取 ${providerConfig.label} API Key`;
+            } else if (this.aiAPIKeyLink) {
+                this.aiAPIKeyLink.style.display = 'none';
+            }
+        }
+    }
+
+    saveAIConfig() {
+        const baseURL = this.aiBaseURL.value.trim();
+        const apiKey = this.aiAPIKey.value.trim();
+        const model = this.aiModelName.value.trim();
+        const provider = this.aiProviderSelect.value;
+
+        this.aiBackgroundSettings.config = { baseURL, apiKey, model, provider };
+
+        try {
+            localStorage.setItem('aiBackgroundConfig', JSON.stringify(this.aiBackgroundSettings.config));
+            this.showAIConfigStatus('配置已保存到本地', 'success');
+            this.showToast('AI 配置已保存', 'success');
+        } catch (e) {
+            this.showAIConfigStatus('保存失败', 'error');
+        }
+    }
+
+    loadAIConfig() {
+        try {
+            const saved = localStorage.getItem('aiBackgroundConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                this.aiBackgroundSettings.config = { ...this.aiBackgroundSettings.config, ...config };
+
+                if (this.aiBaseURL && config.baseURL) this.aiBaseURL.value = config.baseURL;
+                if (this.aiAPIKey && config.apiKey) this.aiAPIKey.value = config.apiKey;
+                if (this.aiModelName && config.model) this.aiModelName.value = config.model;
+                if (this.aiProviderSelect && config.provider) this.aiProviderSelect.value = config.provider;
+            }
+        } catch (e) {
+            console.warn('加载 AI 配置失败:', e);
+        }
+    }
+
+    showAIConfigStatus(message, type = 'info') {
+        if (this.aiConfigStatus) {
+            this.aiConfigStatus.textContent = message;
+            this.aiConfigStatus.className = `ai-config-status ai-config-status-${type}`;
+        }
+    }
+
+    async testAIConnection() {
+        this.showAIConfigStatus('正在测试连接...', 'info');
+        this.aiTestConnectionBtn.disabled = true;
+
+        try {
+            const result = await this.aiBackgroundService.testConnection(this.aiBackgroundSettings.config);
+            this.showAIConfigStatus('连接成功！', 'success');
+            this.showToast('API 连接测试成功', 'success');
+        } catch (error) {
+            this.showAIConfigStatus(`连接失败: ${error.message}`, 'error');
+            this.showToast('API 连接测试失败', 'error');
+        } finally {
+            this.aiTestConnectionBtn.disabled = false;
+        }
+    }
+
+    async generateAIBackground() {
+        const stylePrompt = this.aiStylePrompt ? this.aiStylePrompt.value.trim() : '';
+        this.aiBackgroundSettings.stylePrompt = stylePrompt;
+
+        // 验证配置
+        const { baseURL, apiKey, model } = this.aiBackgroundSettings.config;
+        if (!baseURL || !apiKey || !model) {
+            this.showToast('请先填写完整的 LLM 配置并保存', 'warning');
+            // 自动展开配置区域
+            if (this.aiConfigContent) this.aiConfigContent.style.display = 'block';
+            if (this.aiConfigToggle) {
+                const arrow = this.aiConfigToggle.querySelector('.ai-config-arrow');
+                if (arrow) arrow.textContent = '▾';
+            }
+            return;
+        }
+
+        // 获取 markdown 内容
+        const markdownText = this.markdownInput ? this.markdownInput.value.trim() : '';
+
+        // 设置生成中状态
+        this.aiGenerateBtn.disabled = true;
+        this.aiGenerateBtn.innerHTML = '<span class="loading"></span> AI 生成中...';
+        this.aiResultStatusText.textContent = '生成中...';
+        this.aiResultSection.style.display = 'block';
+
+        try {
+            const css = await this.aiBackgroundService.generateBackground(
+                this.aiBackgroundSettings.config,
+                markdownText,
+                stylePrompt
+            );
+
+            this.aiBackgroundSettings.generatedCSS = css;
+            this.aiResultStatusText.textContent = '已生成';
+            this.aiCssCode.textContent = css;
+
+            this.showToast('AI 背景生成成功', 'success');
+        } catch (error) {
+            console.error('AI 背景生成失败:', error);
+            this.aiResultStatusText.textContent = '生成失败';
+            this.showToast(`生成失败: ${error.message}`, 'error');
+        } finally {
+            this.aiGenerateBtn.disabled = false;
+            this.aiGenerateBtn.innerHTML = '<span class="ai-generate-icon">✨</span> 生成 AI 背景';
+        }
+    }
+
+    applyAIBackground() {
+        if (!this.aiBackgroundSettings.generatedCSS) {
+            this.showToast('请先生成 AI 背景', 'warning');
+            return;
+        }
+
+        this.aiBackgroundSettings.enabled = true;
+        this.applyAIBackgroundStyles();
+        this.showToast('AI 背景已应用', 'success');
+    }
+
+    clearAIBackground() {
+        this.aiBackgroundSettings.enabled = false;
+        this.aiBackgroundSettings.generatedCSS = '';
+        this.aiResultStatusText.textContent = '未生成';
+        this.aiCssCode.textContent = '';
+        this.aiResultSection.style.display = 'none';
+
+        // 清除 AI 背景 CSS 变量和重置背景
+        if (this.previewContent) {
+            this.previewContent.style.removeProperty('--ai-bg-value');
+            this.previewContent.style.removeProperty('--ai-bg-image');
+            this.previewContent.style.removeProperty('--ai-bg-layer');
+        }
+
+        // 重新应用背景（会自动清除 AI 叠加）
+        this.applyBackgroundStyles();
+
+        this.showToast('AI 背景已清除', 'info');
+    }
+
+    applyAIBackgroundStyles() {
+        if (!this.previewContent) return;
+
+        if (!this.aiBackgroundSettings.enabled || !this.aiBackgroundSettings.generatedCSS) {
+            // AI 背景未启用，清除 AI 相关属性并恢复基础背景
+            this.previewContent.style.removeProperty('--ai-bg-value');
+            this.previewContent.style.removeProperty('--ai-bg-image');
+            this.previewContent.style.removeProperty('--ai-bg-layer');
+            // 重新应用基础背景（不含 AI）
+            this.applyBaseBackgroundOnly();
+            return;
+        }
+
+        const css = this.aiBackgroundSettings.generatedCSS;
+
+        // 解析 CSS 属性
+        const lines = css.split('\n').filter(l => l.trim());
+        let bgValue = '';
+        let bgImageValue = '';
+
+        lines.forEach(line => {
+            const cleanLine = line.trim().replace(/;$/, '');
+            if (cleanLine.startsWith('background:') || cleanLine.startsWith('background ')) {
+                const value = cleanLine.replace(/^background\s*:\s*/, '');
+                bgValue = value;
+            } else if (cleanLine.startsWith('background-image:') || cleanLine.startsWith('background-image ')) {
+                const value = cleanLine.replace(/^background-image\s*:\s*/, '');
+                bgImageValue = value;
+            }
+        });
+
+        // 获取当前基础背景
+        const baseBg = this.previewContent.style.getPropertyValue('--bg-base') || '';
+        const settings = this.backgroundSettings;
+
+        // 应用 AI 背景（作为最上层，CSS 中先声明的在最上层）
+        const aiLayer = bgValue || bgImageValue;
+        if (aiLayer) {
+            this.previewContent.style.setProperty('--ai-bg-layer', aiLayer, 'important');
+            // AI 层在上，基础背景在下（CSS 多层背景：先声明=上层）
+            if (baseBg && baseBg !== 'none') {
+                this.previewContent.style.background = `${aiLayer}, ${baseBg}`;
+            } else if (settings.type === 'image' && settings.imageUrl) {
+                // 图片背景在下，AI 在上
+                this.previewContent.style.background = `${aiLayer}, url(${settings.imageUrl})`;
+            } else {
+                // 纯色背景在下，AI 渐变在上
+                this.previewContent.style.background = `${aiLayer}, ${settings.solidColor}`;
+            }
+        }
+
+        console.log('🤖 AI 背景样式已应用');
+    }
+
+    applyBaseBackgroundOnly() {
+        if (!this.previewContent) return;
+        const settings = this.backgroundSettings;
+        if (settings.type === 'solid') {
+            this.previewContent.style.background = settings.solidColor;
+        } else if (settings.imageUrl) {
+            this.previewContent.style.background = `url(${settings.imageUrl})`;
+        }
+    }
+
+    setupAIBackgroundService() {
+        this.aiBackgroundService = new AIBackgroundService();
+        console.log('✅ AI 背景生成服务已初始化');
     }
 
     setupThemeManager() {
@@ -356,6 +693,9 @@ class MarkdownToPDFApp {
 
         const settings = this.backgroundSettings;
 
+        // Clear previous base background
+        this.previewContent.style.removeProperty('--bg-base');
+
         if (settings.type === 'solid') {
             // 纯色背景
             this.previewContent.style.setProperty('--bg-color', settings.solidColor);
@@ -363,23 +703,18 @@ class MarkdownToPDFApp {
             this.previewContent.style.setProperty('--bg-position', 'center center');
             this.previewContent.style.setProperty('--bg-repeat', 'no-repeat');
             this.previewContent.style.setProperty('--bg-overlay-color', 'transparent');
-
-            // 移除背景图片
+            this.previewContent.style.backgroundColor = settings.solidColor;
             this.previewContent.style.backgroundImage = '';
+            this.previewContent.style.background = settings.solidColor;
         } else {
             // 图片背景
             if (settings.imageUrl) {
-                // 直接设置背景样式属性
-                this.previewContent.style.backgroundImage = `url(${settings.imageUrl})`;
+                const bgValue = `url(${settings.imageUrl})`;
+                this.previewContent.style.setProperty('--bg-base', bgValue);
+                this.previewContent.style.backgroundImage = bgValue;
                 this.previewContent.style.backgroundSize = settings.imageSize;
                 this.previewContent.style.backgroundPosition = settings.imagePosition;
                 this.previewContent.style.backgroundRepeat = settings.imageRepeat;
-
-                console.log('🎨 应用背景设置:', {
-                    imageRepeat: settings.imageRepeat,
-                    imageSize: settings.imageSize,
-                    imagePosition: settings.imagePosition
-                });
 
                 // 同时设置CSS变量以保持一致性
                 this.previewContent.style.setProperty('--bg-size', settings.imageSize);
@@ -389,7 +724,6 @@ class MarkdownToPDFApp {
                 // 计算透明度覆盖层
                 const opacity = settings.opacity / 100;
                 if (opacity < 1) {
-                    // 根据主题背景色创建覆盖层
                     const computedStyle = window.getComputedStyle(this.previewContent);
                     const themeBgColor = computedStyle.getPropertyValue('--bg-color') || '#ffffff';
                     this.previewContent.style.setProperty('--bg-overlay-color', this.hexToRgba(themeBgColor, 1 - opacity));
@@ -399,10 +733,15 @@ class MarkdownToPDFApp {
             } else {
                 // 没有图片时使用纯色
                 this.previewContent.style.setProperty('--bg-color', settings.solidColor);
+                this.previewContent.style.backgroundColor = settings.solidColor;
                 this.previewContent.style.backgroundImage = '';
+                this.previewContent.style.background = settings.solidColor;
                 this.previewContent.style.setProperty('--bg-overlay-color', 'transparent');
             }
         }
+
+        // 应用 AI 背景（叠加在现有背景之上）
+        this.applyAIBackgroundStyles();
     }
 
     hexToRgba(hex, alpha) {
@@ -901,16 +1240,19 @@ greet('World');
      */
     handlePageRestored(event) {
         console.log('🔄 页面恢复事件触发，重新绑定元素和事件...');
-        
+
         // 重新绑定元素引用
         this.bindElements();
-        
+
         // 重新绑定事件
         this.bindEvents();
-        
+
         // 恢复按钮状态
         this.restoreAllButtonStates();
-        
+
+        // 重新应用预览（包括 AI 背景）
+        this.updatePreview();
+
         console.log('✅ 页面恢复处理完成');
     }
 
@@ -970,9 +1312,11 @@ greet('World');
 
         if (window.PDFGenerator) {
             const pdfGen = this.pdfGenerator;
-            // 传递 customStyles 到打印选项
+            // 传递 customStyles、backgroundSettings 和 aiBackgroundSettings 到打印选项
             const printOptions = {
                 customStyles: this.customStyles,
+                backgroundSettings: this.backgroundSettings,
+                aiBackgroundSettings: this.aiBackgroundSettings,
                 title: 'Markdown 文档',
                 pageWidth: '210mm'
             };

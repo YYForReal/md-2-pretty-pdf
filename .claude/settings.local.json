@@ -15,7 +15,11 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:juejin.cn)",
       "Bash(python:*)",
-      "Bash(npx serve:*)"
+      "Bash(npx serve:*)",
+      "Bash(node -c js/aiBackgroundService.js)",
+      "Bash(node -c js/app.js)",
+      "Bash(node -c js/pdfGenerator.js)",
+      "Bash(node -c index.html)"
     ],
     "deny": [],
     "ask": []

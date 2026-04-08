@@ -632,6 +632,267 @@ input[type="range"]::-webkit-slider-thumb:hover {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+
+    /* 确保 AI 背景在打印时正确显示 */
+    .preview-content {
+        background: var(--ai-bg-layer, var(--bg-color, #ffffff)) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* =================== AI 背景图生成样式 =================== */
+
+/* AI 背景区域 */
+.ai-background-section {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-md);
+    overflow: hidden;
+}
+
+.ai-background-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    background: var(--hover-bg);
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.ai-background-toggle:hover {
+    background: var(--border-color);
+}
+
+.ai-background-icon {
+    font-size: 1.1rem;
+}
+
+.ai-background-title {
+    flex: 1;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.ai-background-arrow {
+    transition: transform 0.2s;
+    color: var(--secondary-color);
+}
+
+.ai-background-content {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    animation: slideDown 0.2s ease;
+}
+
+/* LLM 配置区域 */
+.ai-config-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.ai-config-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    background: #f8f9fa;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.ai-config-toggle:hover {
+    background: #e9ecef;
+}
+
+.ai-config-arrow {
+    transition: transform 0.2s;
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+}
+
+.ai-config-content {
+    padding: var(--spacing-sm);
+    animation: slideDown 0.2s ease;
+}
+
+.ai-key-hint {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    font-weight: normal;
+}
+
+.ai-config-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.ai-config-status {
+    margin-top: var(--spacing-xs);
+    font-size: 0.8rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+}
+
+.ai-config-status-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.ai-config-status-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.ai-config-status-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* 风格设置 */
+.ai-style-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.ai-style-hint {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    font-weight: normal;
+}
+
+.ai-style-textarea {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.ai-style-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.ai-generate-btn {
+    width: 100%;
+    padding: var(--spacing-sm);
+    font-size: 0.9rem;
+}
+
+.ai-generate-icon {
+    font-size: 1rem;
+}
+
+/* 生成结果 */
+.ai-result-section {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: #f8f9fa;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.ai-result-status {
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--secondary-color);
+}
+
+.ai-result-status #aiResultStatusText {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.ai-css-preview-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+    transition: background 0.2s;
+    user-select: none;
+    border-radius: var(--radius-sm);
+    margin: var(--spacing-xs) 0;
+}
+
+.ai-css-preview-toggle:hover {
+    background: #e9ecef;
+}
+
+.ai-css-preview-arrow {
+    transition: transform 0.2s;
+    font-size: 0.75rem;
+}
+
+.ai-css-preview-content {
+    animation: slideDown 0.2s ease;
+}
+
+.ai-css-code {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: var(--spacing-xs) 0;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.ai-result-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+/* API Key 链接 */
+.ai-api-key-link {
+    display: inline-block;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    transition: color 0.2s;
+}
+
+.ai-api-key-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* 折叠动画 */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 提供商下拉选项链接样式 */
+#aiProviderSelect option {
+    padding: var(--spacing-xs);
 }
 
 /* 预览为空状态 */

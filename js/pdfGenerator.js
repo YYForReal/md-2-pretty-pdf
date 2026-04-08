@@ -243,7 +243,7 @@ class PDFGenerator {
     this.applyCustomStylesAsVariables(printContainer, options);
 
     // 应用背景设置
-    this.applyBackgroundSettingsToPrint(printContainer, clonedElement);
+    this.applyBackgroundSettingsToPrint(printContainer, clonedElement, options);
 
     printContainer.appendChild(clonedElement);
 
@@ -287,93 +287,165 @@ class PDFGenerator {
   /**
    * 应用背景设置到打印内容
    */
-  applyBackgroundSettingsToPrint(printContainer, contentElement) {
+  applyBackgroundSettingsToPrint(printContainer, contentElement, options = {}) {
     console.log("🖼️ 应用背景设置到打印内容...");
 
-    // 从全局 app 实例获取背景设置
+    // 从全局 app 实例或 options 获取背景设置
     let backgroundSettings = null;
-    if (window.app && window.app.backgroundSettings) {
+    if (options.backgroundSettings) {
+      backgroundSettings = options.backgroundSettings;
+    } else if (window.app && window.app.backgroundSettings) {
       backgroundSettings = window.app.backgroundSettings;
       console.log("📋 获取到背景设置:", backgroundSettings);
     }
 
     if (!backgroundSettings) {
       console.log("ℹ️ 没有背景设置需要应用");
-      return;
-    }
+    } else {
+      if (backgroundSettings.type === 'solid') {
+        // 纯色背景
+        contentElement.style.setProperty('--bg-color', backgroundSettings.solidColor);
+        contentElement.style.setProperty('--bg-size', 'auto');
+        contentElement.style.setProperty('--bg-position', 'center center');
+        contentElement.style.setProperty('--bg-repeat', 'no-repeat');
+        contentElement.style.setProperty('--bg-overlay-color', 'transparent');
+        contentElement.style.backgroundColor = backgroundSettings.solidColor;
+        if (!window.app || !window.app.aiBackgroundSettings || !window.app.aiBackgroundSettings.enabled) {
+          contentElement.style.backgroundImage = '';
+        }
+      } else if (backgroundSettings.type === 'image' && backgroundSettings.imageUrl) {
+        // 图片背景
+        contentElement.style.backgroundImage = `url(${backgroundSettings.imageUrl})`;
+        contentElement.style.backgroundSize = backgroundSettings.imageSize;
+        contentElement.style.backgroundPosition = backgroundSettings.imagePosition;
+        contentElement.style.backgroundRepeat = backgroundSettings.imageRepeat;
 
-    if (backgroundSettings.type === 'solid') {
-      // 纯色背景
-      contentElement.style.setProperty('--bg-color', backgroundSettings.solidColor);
-      contentElement.style.setProperty('--bg-size', 'auto');
-      contentElement.style.setProperty('--bg-position', 'center center');
-      contentElement.style.setProperty('--bg-repeat', 'no-repeat');
-      contentElement.style.setProperty('--bg-overlay-color', 'transparent');
-      contentElement.style.backgroundColor = backgroundSettings.solidColor;
-      contentElement.style.backgroundImage = '';
-    } else if (backgroundSettings.type === 'image' && backgroundSettings.imageUrl) {
-      // 图片背景
-      contentElement.style.backgroundImage = `url(${backgroundSettings.imageUrl})`;
-      contentElement.style.backgroundSize = backgroundSettings.imageSize;
-      contentElement.style.backgroundPosition = backgroundSettings.imagePosition;
-      contentElement.style.backgroundRepeat = backgroundSettings.imageRepeat;
+        // 同时设置CSS变量以保持一致性
+        contentElement.style.setProperty('--bg-size', backgroundSettings.imageSize);
+        contentElement.style.setProperty('--bg-position', backgroundSettings.imagePosition);
+        contentElement.style.setProperty('--bg-repeat', backgroundSettings.imageRepeat);
 
-      // 同时设置CSS变量以保持一致性
-      contentElement.style.setProperty('--bg-size', backgroundSettings.imageSize);
-      contentElement.style.setProperty('--bg-position', backgroundSettings.imagePosition);
-      contentElement.style.setProperty('--bg-repeat', backgroundSettings.imageRepeat);
+        // 处理透明度 - 通过CSS变量设置，避免重复应用
+        if (backgroundSettings.type === 'image' && backgroundSettings.imageUrl) {
+          const opacity = backgroundSettings.opacity / 100;
 
-      // 处理透明度 - 通过CSS变量设置，避免重复应用
-      if (backgroundSettings.type === 'image' && backgroundSettings.imageUrl) {
-        const opacity = backgroundSettings.opacity / 100;
+          if (opacity < 1) {
+            console.log('🎨 PDF透明度设置:', { opacity, imageUrl: !!backgroundSettings.imageUrl });
 
-        if (opacity < 1) {
-          console.log('🎨 PDF透明度设置:', { opacity, imageUrl: !!backgroundSettings.imageUrl });
+            // 获取当前主题的背景色作为覆盖层的基础颜色
+            let themeBgColor = '#ffffff'; // 默认白色背景
 
-          // 获取当前主题的背景色作为覆盖层的基础颜色
-          let themeBgColor = '#ffffff'; // 默认白色背景
-
-          // 尝试从当前主题获取背景色
-          if (this.themeManager && this.themeManager.currentTheme) {
-            const themeProperties = this.themeManager.getThemeProperties(this.themeManager.currentTheme);
-            if (themeProperties && themeProperties['--bg-color']) {
-              themeBgColor = themeProperties['--bg-color'];
-            }
-          }
-
-          // 备用方案：从预览元素获取计算的背景色
-          if (themeBgColor === '#ffffff') {
-            const originalPreview = document.getElementById('previewContent');
-            if (originalPreview) {
-              const computedStyle = window.getComputedStyle(originalPreview);
-              const bgColorValue = computedStyle.getPropertyValue('--bg-color');
-              if (bgColorValue && bgColorValue !== '#ffffff') {
-                themeBgColor = bgColorValue;
+            // 尝试从当前主题获取背景色
+            if (this.themeManager && this.themeManager.currentTheme) {
+              const themeProperties = this.themeManager.getThemeProperties(this.themeManager.currentTheme);
+              if (themeProperties && themeProperties['--bg-color']) {
+                themeBgColor = themeProperties['--bg-color'];
               }
             }
-          }
 
-          let overlayColor;
+            // 备用方案：从预览元素获取计算的背景色
+            if (themeBgColor === '#ffffff') {
+              const originalPreview = document.getElementById('previewContent');
+              if (originalPreview) {
+                const computedStyle = window.getComputedStyle(originalPreview);
+                const bgColorValue = computedStyle.getPropertyValue('--bg-color');
+                if (bgColorValue && bgColorValue !== '#ffffff') {
+                  themeBgColor = bgColorValue;
+                }
+              }
+            }
 
-          // 使用全局app实例的hexToRgba函数，或者使用简化版本
-          if (window.app && typeof window.app.hexToRgba === 'function') {
-            overlayColor = window.app.hexToRgba(themeBgColor, 1 - opacity);
+            let overlayColor;
+
+            // 使用全局app实例的hexToRgba函数，或者使用简化版本
+            if (window.app && typeof window.app.hexToRgba === 'function') {
+              overlayColor = window.app.hexToRgba(themeBgColor, 1 - opacity);
+            } else {
+              // 简化的hexToRgba实现（只处理常见的背景色）
+              overlayColor = this.simpleHexToRgba(themeBgColor, 1 - opacity);
+            }
+
+            contentElement.style.setProperty('--bg-overlay-color', overlayColor);
+
+            console.log('✅ PDF透明度CSS变量已设置:', { themeBgColor, overlayColor });
           } else {
-            // 简化的hexToRgba实现（只处理常见的背景色）
-            overlayColor = this.simpleHexToRgba(themeBgColor, 1 - opacity);
+            contentElement.style.setProperty('--bg-overlay-color', 'transparent');
+            console.log('ℹ️ PDF透明度设置为100%，无需覆盖层');
           }
-
-          contentElement.style.setProperty('--bg-overlay-color', overlayColor);
-
-          console.log('✅ PDF透明度CSS变量已设置:', { themeBgColor, overlayColor });
-        } else {
-          contentElement.style.setProperty('--bg-overlay-color', 'transparent');
-          console.log('ℹ️ PDF透明度设置为100%，无需覆盖层');
         }
       }
     }
 
+    // 应用 AI 背景设置
+    this.applyAIBackgroundSettingsToPrint(contentElement, options);
+
     console.log("✅ 背景设置应用完成");
+  }
+
+  /**
+   * 应用 AI 背景设置到打印内容
+   */
+  applyAIBackgroundSettingsToPrint(contentElement, options = {}) {
+    console.log("🤖 应用 AI 背景设置到打印内容...");
+
+    // 从 options 或全局 app 实例获取 AI 背景设置
+    let aiBackgroundSettings = null;
+    if (options.aiBackgroundSettings) {
+      aiBackgroundSettings = options.aiBackgroundSettings;
+    } else if (window.app && window.app.aiBackgroundSettings) {
+      aiBackgroundSettings = window.app.aiBackgroundSettings;
+    }
+
+    if (!aiBackgroundSettings || !aiBackgroundSettings.enabled || !aiBackgroundSettings.generatedCSS) {
+      console.log("ℹ️ 没有 AI 背景设置需要应用");
+      return;
+    }
+
+    const css = aiBackgroundSettings.generatedCSS;
+
+    // 解析 CSS 属性
+    const lines = css.split('\n').filter(l => l.trim());
+    let bgValue = '';
+    let bgImageValue = '';
+
+    lines.forEach(line => {
+      const cleanLine = line.trim().replace(/;$/, '');
+      if (cleanLine.startsWith('background:') || cleanLine.startsWith('background ')) {
+        const value = cleanLine.replace(/^background\s*:\s*/, '');
+        bgValue = value;
+      } else if (cleanLine.startsWith('background-image:') || cleanLine.startsWith('background-image ')) {
+        const value = cleanLine.replace(/^background-image\s*:\s*/, '');
+        bgImageValue = value;
+      }
+    });
+
+    // 获取当前基础背景
+    let baseBg = '';
+    const backgroundSettings = options.backgroundSettings || (window.app && window.app.backgroundSettings);
+
+    if (backgroundSettings) {
+      if (backgroundSettings.type === 'image' && backgroundSettings.imageUrl) {
+        baseBg = `url(${backgroundSettings.imageUrl})`;
+      } else {
+        baseBg = backgroundSettings.solidColor || '#ffffff';
+      }
+    } else {
+      baseBg = contentElement.style.backgroundColor || '#ffffff';
+    }
+
+    // 应用 AI 背景（AI 层在上，基础背景在下；CSS 多层背景：先声明=上层）
+    const aiLayer = bgValue || bgImageValue;
+    if (aiLayer) {
+      contentElement.style.setProperty('--ai-bg-layer', aiLayer, 'important');
+      // AI 背景在上层，基础背景在下层
+      contentElement.style.background = `${aiLayer}, ${baseBg}`;
+    }
+
+    // 确保打印时背景颜色被正确应用
+    contentElement.style.setProperty('-webkit-print-color-adjust', 'exact');
+    contentElement.style.setProperty('print-color-adjust', 'exact');
+
+    console.log("✅ AI 背景设置应用到打印完成");
   }
 
   /**
