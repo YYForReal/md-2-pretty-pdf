@@ -1118,8 +1118,16 @@ greet('World');
     }
 
     parseMarkdown(markdown) {
+        const mathBlocks = [];
+
+        // 保护块级数学公式，防止 marked 解析破坏 LaTeX 语法（如换行转 <br>、& 转 &amp;）
+        let md = markdown.replace(/(^|[^\\])\$\$([\s\S]*?)\$\$/gm, (match, prefix, formula) => {
+            const idx = mathBlocks.length;
+            mathBlocks.push(formula.trim());
+            return prefix + `@@MATH_BLOCK_${idx}@@`;
+        });
+
         let htmlContent;
-        
         if (typeof marked !== 'undefined') {
             // 配置 marked 选项
             marked.setOptions({
@@ -1130,11 +1138,11 @@ greet('World');
                 smartLists: true,
                 smartypants: true
             });
-            htmlContent = marked.parse(markdown);
+            htmlContent = marked.parse(md);
         } else {
             console.warn("备用方案")
             // 简单的 Markdown 解析（备用方案）
-            htmlContent = markdown
+            htmlContent = md
                 .replace(/^# (.*$)/gim, '<h1>$1</h1>')
                 .replace(/^## (.*$)/gim, '<h2>$1</h2>')
                 .replace(/^### (.*$)/gim, '<h3>$1</h3>')
@@ -1147,9 +1155,20 @@ greet('World');
                 .replace(/$/, '</p>');
         }
 
+        // 恢复块级公式，并去除 marked 自动包裹的 <p> 标签
+        htmlContent = htmlContent.replace(/<p>\s*@@MATH_BLOCK_(\d+)@@\s*<\/p>/g, (match, index) => {
+            const formula = mathBlocks[parseInt(index)];
+            return `<div class="math-block">$$${formula}$$</div>`;
+        });
+
+        htmlContent = htmlContent.replace(/@@MATH_BLOCK_(\d+)@@/g, (match, index) => {
+            const formula = mathBlocks[parseInt(index)];
+            return `<div class="math-block">$$${formula}$$</div>`;
+        });
+
         // 处理数学公式渲染
         this.renderMathFormulas(htmlContent);
-        
+
         return htmlContent;
     }
 
