@@ -2,13 +2,9 @@
 class PDFGenerator {
   constructor(themeManager = null) {
     this.themeManager = themeManager;
-    this.jsPDF = window.jspdf?.jsPDF ;
     // this.html2canvas = window.html2canvas;
     this.debugEnabled = true;
 
-    if (!this.jsPDF) {
-      console.error("jsPDF 未加载");
-    }
 
     // if (!this.html2canvas) {
     //   console.warn("html2canvas 未加载");
@@ -147,7 +143,7 @@ class PDFGenerator {
     console.log("🖨️ 开始直接打印流程...");
     console.log("📋 输入参数:", { element, options });
 
-    let originalBodyHTML = null;
+    let originalBodyNodes = null;
     let originalTitle = null;
     const printStyleId = "pdf-print-styles";
 
@@ -170,10 +166,10 @@ class PDFGenerator {
       );
 
       // 2. 保存原始状态
-      originalBodyHTML = document.body.innerHTML;
+      originalBodyNodes = Array.from(document.body.childNodes);
       originalTitle = document.title;
       console.log("💾 保存原始页面状态完成");
-      console.log("📄 原始body内容长度:", originalBodyHTML.length);
+      console.log("📄 原始body内容长度:", originalBodyNodes.length);
       console.log("🏷️ 原始页面标题:", originalTitle);
 
       // 3. 准备打印内容
@@ -189,9 +185,12 @@ class PDFGenerator {
     //   console.log("📄 新body内容:", document.documentElement.outerHTML);
       console.log("🏷️ 新页面标题:", document.title);
 
-      // 5. 添加打印样式
-      console.log("🎨 添加打印样式...");
-    //   this.addPrintStyles();
+      // Honor the selected paper without changing the editor's theme/layout.
+      const paper = { a4: 'A4', letter: 'Letter', a5: 'A5' }[options.pageSize] || 'A4';
+      const paperStyle = document.createElement('style');
+      paperStyle.id = printStyleId;
+      paperStyle.textContent = `@page { size: ${paper}; }`;
+      document.head.appendChild(paperStyle);
 
       // 6. 等待DOM更新
       console.log("⏳ 等待DOM更新...");
@@ -212,7 +211,7 @@ class PDFGenerator {
     } finally {
       // 9. 恢复原始内容（无论成功与否都要执行）
       await this.restoreOriginalContent(
-        originalBodyHTML,
+        originalBodyNodes,
         originalTitle,
         printStyleId
       );
@@ -614,7 +613,9 @@ class PDFGenerator {
 
       // 清理所有定时器
       let timeoutIds = [];
+      let afterPrintHandler;
       const clearTimeouts = () => {
+        window.removeEventListener('afterprint', afterPrintHandler);
         timeoutIds.forEach(id => clearTimeout(id));
         timeoutIds = [];
       };
@@ -630,13 +631,15 @@ class PDFGenerator {
 
       try {
         // 打印完成处理函数
-        const afterPrintHandler = () => {
+        afterPrintHandler = () => {
           if (!state.isResolved) {
             console.log("👂 检测到打印对话框关闭");
             state.printExecuted = true;
             safeResolve();
           }
         };
+
+        window.addEventListener('afterprint', afterPrintHandler, { once: true });
 
         // 监听打印状态变化（浏览器兼容方案）
         if (window.matchMedia) {
@@ -701,13 +704,13 @@ class PDFGenerator {
   /**
    * 恢复原始内容
    */
-  async restoreOriginalContent(originalBodyHTML, originalTitle, styleId) {
+  async restoreOriginalContent(originalBodyNodes, originalTitle, styleId) {
     console.log("🔄 开始恢复原始内容...");
 
     try {
-      if (originalBodyHTML) {
-        // 恢复body内容
-        document.body.innerHTML = originalBodyHTML;
+      if (originalBodyNodes) {
+        // Keep the actual nodes: innerHTML loses textarea/select state and listeners.
+        document.body.replaceChildren(...originalBodyNodes);
         console.log("✅ body内容恢复完成");
       }
 
@@ -724,11 +727,8 @@ class PDFGenerator {
         console.log("✅ 打印样式移除完成");
       }
 
-      // 等待DOM完全恢复
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      
-      // 触发页面恢复完成事件，让应用重新绑定事件
-      this.triggerPageRestoredEvent();
+      // Original nodes retain their event listeners; rebinding would duplicate them.
+      // Do not emit pageRestored, whose legacy handler binds the document again.
       
       console.log("🎉 页面恢复流程全部完成");
     } catch (error) {

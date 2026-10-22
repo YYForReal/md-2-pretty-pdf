@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown to PDF 转换器</title>
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/themes.css">
+    <link rel="stylesheet" href="styles/main.css?v=20261023-1">
+    <link rel="stylesheet" href="styles/themes.css?v=20261023-1">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>📄 Markdown to PDF 转换器</h1>
             <p>将您的 Markdown 文档转换为精美的 PDF 文件</p>
+            <p><a href="../index.html">返回有趣玩具</a> · <a href="https://github.com/YYForReal/md-2-pretty-pdf" target="_blank" rel="noopener">开源项目</a></p>
         </header>
 
         <main class="main-content">
@@ -272,7 +273,8 @@
 
                     <!-- 操作按钮 -->
                     <div class="action-buttons">
-                        <button id="printBtn" class="btn btn-primary">🖨️ 打印</button>
+                        <button id="printBtn" class="btn btn-primary">🖨️ 打印 / 保存 PDF</button>
+                        <p class="print-help">在打印窗口选择“另存为 PDF”。需要背景色或背景图时，请勾选“背景图形”；可关闭页眉和页脚。</p>
                     </div>
                 </div>
             </section>
@@ -281,7 +283,6 @@
 
     <!-- 引入外部库 -->
     <script src="js/marked@11.1.1.js"></script>
-    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
     <!-- MathJax 3.0 数学公式渲染库 -->
     <script>
         window.MathJax = {
@@ -302,14 +303,14 @@
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
     <!-- html2canvas 保留作为备用方案 -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> -->
 
     <!-- 引入应用脚本 -->
-    <script src="js/aiBackgroundService.js"></script>
-    <script src="js/pdfGenerator.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/themeManager.js"></script>
+    <script src="js/aiBackgroundService.js?v=20261023-1"></script>
+    <script src="js/pdfGenerator.js?v=20261023-1"></script>
+    <script src="js/app.js?v=20261023-1"></script>
+    <script src="js/themeManager.js?v=20261023-1"></script>
 </body>
 </html>

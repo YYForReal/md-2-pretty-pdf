@@ -1,10 +1,20 @@
-
-
 # 📄 Markdown to PDF 转换器
 
 一个功能强大的在线 Markdown 转 PDF 工具，支持丰富的样式自定义和多种预设主题。
 
 **仓库地址**: [https://github.com/YYForReal/md-2-pretty-pdf](https://github.com/YYForReal/md-2-pretty-pdf)
+
+在线体验：[Markdown 转 PDF](https://yywebsite.cn/home/toy/md2pdf/)，也可从 [YY小站的有趣玩具](https://yywebsite.cn/home/toy/index.html) 进入。
+
+### 2026-10-23 部署更新
+
+- 保留原体验路径 `/home/toy/md2pdf/`，补回工具箱导航。
+- 修复关闭或取消打印后正文和样式控件丢失；保留原DOM节点，恢复后可继续编辑和再次打印。
+- 原生打印跟随页面尺寸选择（A4 / Letter / A5）；导出时选择“另存为 PDF”，需要背景请勾选打印窗口的“背景图形”。
+- 移除未使用的 jsPDF CDN，MathJax 固定为3.2.2。普通排版与打印无需后端，数学公式仍需联网加载该公式库。
+- AI背景为可选功能，需要自行配置模型服务及API Key，并受服务商CORS/额度约束；此次部署没有提供共享密钥或免费模型后端。
+
+感谢 [@webbrain-one](https://github.com/webbrain-one) 提交项目首个外部贡献 [PR #1](https://github.com/YYForReal/md-2-pretty-pdf/pull/1)，纠正README对PDF导出方式的描述。该PR于2026-10-23合并，原提交与署名保留。
 
 ## 效果
 
@@ -229,3 +239,13 @@ Apache-2.0 License - 详见 [LICENSE](LICENSE) 文件
 ---
 
 **享受使用这个工具，让你的 Markdown 文档变得更加精美！** 🎉
+
+## 静态发布
+
+```bash
+python3 scripts/build-release.py --output /tmp/md2pdf-release-20261023
+```
+
+输出只含index.html、js、styles、assets、sample.md、LICENSE和逐文件SHA-256清单，不包含.git、.claude、本机配置或云函数。将其部署到支持静态文件的Web服务器即可；子路径须保留末尾斜杠，使相对资源正确加载。
+
+YY小站部署在新机42.194.235.138的独立不可变发布目录，`/home/hyy/html/home/toy/md2pdf`通过软链接指向当前版本；YYHome发布必须继续采用非删除同步，保留此独立子站。升级先核验新机身份、备份原工具箱HTML与链接，再校验发布清单并原子切换，勿把私人配置或整个Git工作区直接复制到Web目录。

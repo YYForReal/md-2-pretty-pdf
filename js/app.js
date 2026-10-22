@@ -1316,7 +1316,7 @@ greet('World');
         const printBtn = document.getElementById('printBtn');
         if (printBtn) {
             printBtn.disabled = false;
-            printBtn.innerHTML = '🖨️ 打印';
+            printBtn.innerHTML = '🖨️ 打印 / 保存 PDF';
             console.log('✅ 打印按钮状态已恢复');
         } else {
             console.warn('⚠️ 未找到打印按钮元素');
@@ -1337,7 +1337,7 @@ greet('World');
                 backgroundSettings: this.backgroundSettings,
                 aiBackgroundSettings: this.aiBackgroundSettings,
                 title: 'Markdown 文档',
-                pageWidth: '210mm'
+                pageSize: this.currentPageSize
             };
             await pdfGen.directPrint(this.previewContent, printOptions);
         } else {

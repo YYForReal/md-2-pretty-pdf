@@ -1,3 +1,8 @@
 .claude/settings.json
 .claude/settings.local.json
 .claude/settings.local.json
+
+# Generated releases and local verification artifacts
+dist/
+outputs/
+__pycache__/
