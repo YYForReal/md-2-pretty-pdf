@@ -1,3 +1,5 @@
+
+
 # 📄 Markdown to PDF 转换器
 
 一个功能强大的在线 Markdown 转 PDF 工具，支持丰富的样式自定义和多种预设主题。
@@ -184,7 +186,7 @@ window.themeManager.applyTheme('my-theme');
 A: 确保 CSS 中正确设置了字体族，PDF 生成器会自动优化字体渲染。
 
 ### Q: 为什么有些样式在 PDF 中不显示？
-A: PDF 生成使用 html2canvas，某些高级 CSS 特性可能不支持。建议使用基础的 CSS 属性。
+A: PDF 生成使用浏览器原生打印 API，某些高级 CSS 特性可能无法完美渲染。建议使用基础的 CSS 属性以确保最佳的打印效果。
 
 ### Q: 如何处理中文内容？
 A: 应用提供了丰富的中文字体支持，包括：
